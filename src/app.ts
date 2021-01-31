@@ -10,8 +10,9 @@ import morgan from 'morgan';
 import moment from 'moment';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
-import { AzuracastService } from './services/azuracast.service';
 import channel from './routers/channel.router';
+import weather from './routers/weather.router';
+import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use(cookieParser());
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use('/channels', channel);
+app.use('/weather', weather);
 
 app.use(cors({credentials: true, origin: ['*']}));
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));

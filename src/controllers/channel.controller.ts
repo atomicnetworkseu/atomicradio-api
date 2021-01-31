@@ -9,7 +9,7 @@ export namespace ChannelController {
         const channelDance = CacheService.get("channel-dance");
         const channelTrap = CacheService.get("channel-trap");
         const listeners = CacheService.get("listeners");
-        return res.status(200).json({all_listeners: listeners.all, listeners: listeners, one: channelOne, dance: channelDance, trap: channelTrap})
+        return res.status(200).json({all_listeners: listeners.all, listeners, one: channelOne, dance: channelDance, trap: channelTrap});
     }
 
     export function getChannelById(req: Request, res: Response) {

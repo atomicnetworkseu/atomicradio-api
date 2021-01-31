@@ -8,6 +8,10 @@ const cache = new CacheManager({
     memoryOnly: false,
     discardTamperedCache: true
 });
+const ipCache = new CacheManager({
+    memoryOnly: true,
+    discardTamperedCache: true
+});
 
 cache.on("outdated", (name: string, data?: any) => {
     console.log("Cache outdated: ", name);
@@ -29,6 +33,10 @@ export namespace CacheService {
 
     export function get(key: string): any {
         return cache.get(key);
+    }
+
+    export function getIpCache() {
+        return ipCache;
     }
 
 }
