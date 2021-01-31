@@ -13,7 +13,6 @@ jobs:
       matrix:
         node-version: [10.x, 12.x, 14.x, 15.x]
     name: Running tslint 🔨
-    needs: compile
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -28,7 +27,7 @@ jobs:
       matrix:
         node-version: [10.x, 12.x, 14.x, 15.x]
     name: Running build 🌸
-    needs: compile
+    needs: lint
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
