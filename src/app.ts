@@ -12,18 +12,19 @@ import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
+import card from './routers/card.router';
 import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
+
+const app = express();
+const httpServer = new http.Server(app);
+const io = new socket.Server(httpServer);
 
 dotenv.config();
 AzuracastService.getStationInfos("one");
 AzuracastService.getStationInfos("dance");
 AzuracastService.getStationInfos("trap");
 ListenerService.requestListener();
-
-const app = express();
-const httpServer = new http.Server(app);
-const io = new socket.Server(httpServer);
 
 morgan.token('host', (req: express.Request, res: express.Response) => {
     return req.hostname;
@@ -49,11 +50,16 @@ app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use('/channels', channel);
 app.use('/weather', weather);
+app.use('/cards', card);
 
 app.use(cors({credentials: true, origin: ['*']}));
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
 
-app.use('**', (req: express.Request, res: express.Response, next: () => void) => {
+app.get("/debug-sentry", function mainHandler(req, res) {
+    throw new Error("My first Sentry error!");
+});
+
+app.use('**', (req, res: any, next: () => void) => {
     return res.status(404).json({code: 404, message: "Express router not found."});
 });
 
