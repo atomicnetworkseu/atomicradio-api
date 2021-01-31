@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import socket from 'socket.io';
 import express from 'express';
+import chalk from 'chalk';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -71,7 +72,7 @@ io.on("connection", (client: any) => {
 });
 
 app.listen(9000, () => {
-    console.log(` ${moment().format('DD/MM/YYYY HH:mm:s')} | INFO | Web-API is listening on port undefined.`);
+    console.log(` ${moment().format('DD/MM/YYYY HH:mm:s')} | INFO | Web-API is listening on port undefined.`)
 }).on('error', err => {
     console.log(err);
 });

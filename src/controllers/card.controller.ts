@@ -27,21 +27,21 @@ export namespace CardController {
 
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-        if (playing == "now") {
+        if (playing === "now") {
             const header_text = [
                 { text: "CURRENTLY ", fillStyle: "#868788", font: "28px Montserrat-Bold" },
                 { text: "PLAYING AT ", fillStyle: "#868788", font: "28px Montserrat-Light" },
                 { text: "ATR." + station.toUpperCase(), fillStyle: "#868788", font: "28px Montserrat-Bold" }
             ];
             fillMixedTextLeft(ctx, header_text, 90, 55);
-        } else if (playing == "last") {
+        } else if (playing === "last") {
             const header_text = [
                 { text: "LAST ", fillStyle: "#868788", font: "28px Montserrat-Bold" },
                 { text: "PLAYED AT ", fillStyle: "#868788", font: "28px Montserrat-Light" },
                 { text: "ATR." + station.toUpperCase(), fillStyle: "#868788", font: "28px Montserrat-Bold" }
             ];
             fillMixedTextLeft(ctx, header_text, 90, 55);
-        } else if (playing == "next") {
+        } else if (playing === "next") {
             const header_text = [
                 { text: "NEXT ", fillStyle: "#868788", font: "28px Montserrat-Bold" },
                 { text: "PLAYING AT ", fillStyle: "#868788", font: "28px Montserrat-Light" },
@@ -55,9 +55,10 @@ export namespace CardController {
         fillMixedTextLeft(ctx, [{ text: start_at.split(":")[1] + ":" + start_at.split(":")[2], fillStyle: "#ffffff", font: "26.4px Montserrat-LightItalic" }], 8, 412, 100);
         fillMixedTextLeft(ctx, [{ text: end_at.split(":")[1] + ":" + end_at.split(":")[2], fillStyle: "#ffffff", font: "26.4px Montserrat-LightItalic" }], 923.5, 412, 65);
 
-        let stime_start, stime_end;
+        let stime_start
+        let stime_end;
         if (start_at.split(":").length === 3) {
-            stime_start = Number(start_at.split(":")[0]) * 3600 + Number(<any>start_at.split(":")[1] * 60 + Number(start_at.split(":")[2]));
+            stime_start = Number(start_at.split(":")[0]) * 3600 + Number((start_at.split(":")[1] as any) * 60 + Number(start_at.split(":")[2]));
         } else {
             stime_start = Number(start_at.split(":")[0]) * 60 + Number(start_at.split(":")[1]);
         }
@@ -65,18 +66,19 @@ export namespace CardController {
         if (end_at.split(":").length === 3) {
             stime_end =
                 Number(end_at.split(":")[0]) * 3600 +
-                Number(<any>end_at.split(":")[1] * 60 + Number(end_at.split(":")[2]));
+                Number((end_at.split(":")[1] as any) * 60 + Number(end_at.split(":")[2]));
         } else {
             stime_end = Number(end_at.split(":")[0]) * 60 + Number(end_at.split(":")[1]);
         }
 
-        let val = Math.ceil((Number(stime_start) / Number(stime_end)) * 100), val_w = Math.ceil(((100 - val) * canvas.width) / 100);
+        const val = Math.ceil((Number(stime_start) / Number(stime_end)) * 100)
+        const val_w = Math.ceil(((100 - val) * canvas.width) / 100);
         ctx.fillStyle = "#c5c5c5";
         ctx.strokeStyle = "#c5c5c5";
-        if (val != 0) {
+        if (val !== 0) {
             roundRect(ctx, canvas.width + 10, canvas.height - 10.18, -val_w + 10, 10, 2.5, true);
         }
-    
+
         ctx.strokeStyle = "transparent";
         roundRect(ctx, 700, 80, 250, 250, 20);
         if (image !== "") {
@@ -89,7 +91,7 @@ export namespace CardController {
     }
 
     function roundRect(ctx: any, x: number, y: number, width: number, height: number, radius: any, fill?: boolean, stroke?: boolean) {
-        if (typeof stroke == "undefined") {
+        if (typeof stroke === "undefined") {
             stroke = true;
         }
         if (typeof radius === "undefined") {
@@ -100,7 +102,9 @@ export namespace CardController {
         } else {
             const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
             for (const side in defaultRadius) {
-                radius[side] = radius[side];
+                if(side !== undefined) {
+                    radius[side] = radius[side];
+                }
             }
         }
         ctx.beginPath();
@@ -127,15 +131,9 @@ export namespace CardController {
         }
     }
 
-        /**Create align right mixed text
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
-     * @param {Object[]} args - List of Text
-     * @param {any} ctx - Canvas Context
-     * */
     function fillMixedTextLeft(ctx: any, args: any, x: number, y: number, max_width?: number) {
-        let defaultFillStyle = ctx.fillStyle;
-        let defaultFont = ctx.font;
+        const defaultFillStyle = ctx.fillStyle;
+        const defaultFont = ctx.font;
         let width = 0;
         ctx.textAlign = "start";
         ctx.save();
@@ -147,7 +145,7 @@ export namespace CardController {
             });
 
             if (width > max_width) {
-                let text = args[args.length - 1]["text"];
+                let text = args[args.length - 1].text;
 
                 while (ctx.measureText(text).width > max_width) {
                     text = text.slice(0, -1);
@@ -155,7 +153,7 @@ export namespace CardController {
 
                 text = text += "...";
 
-                args[args.length - 1]["text"] = text;
+                args[args.length - 1].text = text;
             }
         }
 
@@ -169,12 +167,6 @@ export namespace CardController {
         ctx.restore();
     };
 
-    /**Create align left mixed text
-     * @param {number} x - x coordinate
-     * @param {number} y - y coordinate
-     * @param {Object[]} args - List of Text
-     * @param {any} ctx - Canvas Context
-     * */
     /*function fillMixedTextRight(ctx: any, args: any, x: number, y: number) {
         let defaultFillStyle = ctx.fillStyle;
         let defaultFont = ctx.font;

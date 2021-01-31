@@ -7,7 +7,7 @@ export namespace AzuracastService {
 
     export function getStationInfos(channelId: string) {
         const stationUrl = "http://" + process.env.AZURACAST_API + "/api/nowplaying/atr." + channelId;
-        return new Promise((resolve, rejext) => {
+        return new Promise((resolve, reject) => {
             const header = { 'X-API-Key': process.env.AZURACAST_TOKEN };
             axios.get(stationUrl, {headers: header}).then(async (response) => {
                 if(CacheService.get("channel-" + channelId) !== undefined) {
@@ -16,17 +16,38 @@ export namespace AzuracastService {
                         addHistory(response.data);
                     }
                 }
-                CacheService.set("channel-" + channelId, {
-                    name: response.data.station.name,
-                    listeners: response.data.listeners.current,
-                    song: getCurrentSong(response.data),
-                    schedule: await getSchedule(response.data),
-                    history: getHistory(response.data).slice(0).reverse(),
-                    stream_urls: {
-                        highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
-                        middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
-                        lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality.mp3" }
-                    }, (response.data.now_playing.remaining*1000));
+                let channelInfo: any;
+                if(channelId === "one") {
+                    channelInfo = {
+                        name: response.data.station.name,
+                        listeners: response.data.listeners.current,
+                        live: { is_live: response.data.live.is_live, streamer: response.data.live.streamer_name },
+                        song: getCurrentSong(response.data),
+                        schedule: await getSchedule(response.data),
+                        history: getHistory(response.data).slice(0).reverse(),
+                        stream_urls: {
+                            highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
+                            middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
+                            lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality.mp3" }
+                        }
+                } else {
+                    channelInfo = {
+                        name: response.data.station.name,
+                        listeners: response.data.listeners.current,
+                        song: getCurrentSong(response.data),
+                        schedule: await getSchedule(response.data),
+                        history: getHistory(response.data).slice(0).reverse(),
+                        stream_urls: {
+                            highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
+                            middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
+                            lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality.mp3" }
+                        }
+                }
+                if(response.data.live.is_live) {
+                    CacheService.set("channel-" + channelId, channelInfo, 1000);
+                } else {
+                    CacheService.set("channel-" + channelId, channelInfo, (response.data.now_playing.remaining*1000));
+                }
                 resolve(response.data);
             }).catch((error) => {
                 if(error !== undefined) {
