@@ -42,7 +42,7 @@ export namespace ArtworkService {
                         });
                     });
                     writer.on("error", () => {
-
+                        console.log("ERROR WHILE SAVING ARTWORK")
                     });
                 }).catch((error) => {
                     console.log("ERROR WHILE DOWNLADING ARTWORK");
