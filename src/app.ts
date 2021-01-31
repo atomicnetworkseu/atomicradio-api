@@ -1,5 +1,7 @@
 'use strict';
-
+import dotenv from 'dotenv';
+import http from 'http';
+import socket from 'socket.io';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -7,17 +9,20 @@ import cors from 'cors';
 import morgan from 'morgan';
 import moment from 'moment';
 import expressHandlebars from 'express-handlebars';
-/*import CacheManager from "fast-node-cache";*/
 import anonymize from "ip-anonymize";
+import { AzuracastService } from './services/azuracast.service';
+import channel from './routers/channel.router';
+import { ListenerService } from './services/listener.service';
+
+dotenv.config();
+AzuracastService.getStationInfos("one");
+AzuracastService.getStationInfos("dance");
+AzuracastService.getStationInfos("trap");
+ListenerService.requestListener();
 
 const app = express();
-const http = require("http").Server(app);
-const io = require("socket.io")(http);
-/*const cache = new CacheManager({
-    cacheDirectory: "../caches",
-    memoryOnly: false,
-    discardTamperedCache: true
-});*/
+const httpServer = new http.Server(app);
+const io = new socket.Server(httpServer);
 
 morgan.token('host', (req: express.Request, res: express.Response) => {
     return req.hostname;
@@ -41,8 +46,9 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
+app.use('/channels', channel);
 
-app.use(cors({credentials: true,origin: ['*']}));
+app.use(cors({credentials: true, origin: ['*']}));
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
 
 app.use('**', (req: express.Request, res: express.Response, next: () => void) => {
