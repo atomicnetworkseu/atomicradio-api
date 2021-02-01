@@ -49,6 +49,7 @@ morgan.token('date', (req: express.Request, res: express.Response) => {
 });
 
 app.enable("trust proxy");
+app.use(cors({credentials: true, origin: '*'}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -65,8 +66,6 @@ app.use('/cards', card);
 app.use(express.static('./views'));
 app.engine('html', ejs.renderFile);
 app.set('view engine', 'html');
-
-app.use(cors({credentials: true, origin: ['*']}));
 
 app.use('**', (req, res: any, next: () => void) => {
     res.status(404).render('welcome.html');
