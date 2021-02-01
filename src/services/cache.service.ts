@@ -2,6 +2,7 @@
 import CacheManager from "fast-node-cache";
 import { AzuracastService } from "./azuracast.service";
 import { ListenerService } from "./listener.service";
+import { LogService } from "./log.service";
 
 const cache = new CacheManager({
     cacheDirectory: "caches",
@@ -14,10 +15,9 @@ const ipCache = new CacheManager({
 });
 
 cache.on("outdated", (name: string, data?: any) => {
-    console.log("Cache outdated: ", name);
     if(name.startsWith("channel-")) {
+        LogService.logDebug("Cache '" + name + "' is no longer valid. Requesting new data...");
         const channelId = name.split("-");
-        console.log(channelId);
         AzuracastService.getStationInfos(channelId[1]);
     } else if(name.startsWith("listeners")) {
         ListenerService.requestListener();
@@ -27,7 +27,6 @@ cache.on("outdated", (name: string, data?: any) => {
 export namespace CacheService {
 
     export function set(key: string, data: any, expires?: number) {
-        console.log("Cache input: ", key, expires);
         cache.set(key, data, expires);
     }
 

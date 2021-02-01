@@ -2,6 +2,7 @@
 import fs from "fs";
 import axios from "axios";
 import sharp from "sharp";
+import { LogService } from "./log.service";
 
 export namespace ArtworkService {
 
@@ -32,20 +33,24 @@ export namespace ArtworkService {
                     response.data.pipe(writer);
                     writer.on("finish", () => {
                         sharp(`./assets/artworks/1000-${id}.jpg`).resize(500, 500).toFile(`./assets/artworks/0500-${id}.jpg`).catch((error) => {
-                            console.log("ERROR 500x500 Artworks");
+                            LogService.logError("The size of one artwork could not be resized to 500x500. (" + id + ")");
+                            console.log(error);
                         });
                         sharp(`./assets/artworks/1000-${id}.jpg`).resize(250, 250).toFile(`./assets/artworks/0250-${id}.jpg`).catch((error) => {
-                            console.log("ERROR 500x500 Artworks");
+                            LogService.logError("The size of one artwork could not be resized to 250x250. (" + id + ")");
+                            console.log(error);
                         });
                         sharp(`./assets/artworks/1000-${id}.jpg`).resize(100, 100).toFile(`./assets/artworks/0100-${id}.jpg`).catch((error) => {
-                            console.log("ERROR 500x500 Artworks");
+                            LogService.logError("The size of one artwork could not be resized to 100x100. (" + id + ")");
+                            console.log(error);
                         });
                     });
                     writer.on("error", () => {
-                        console.log("ERROR WHILE SAVING ARTWORK")
+                        LogService.logError("Artwork could not be saved. (" + id + ")");
                     });
                 }).catch((error) => {
-                    console.log("ERROR WHILE DOWNLADING ARTWORK");
+                    LogService.logError("Artwork could not be downloaded. (" + id + ")");
+                    console.log(error);
                 });
             }
             return {

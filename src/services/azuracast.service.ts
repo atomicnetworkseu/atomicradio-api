@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ArtworkService } from "./artwork.service";
 import { CacheService } from "./cache.service";
+import { LogService } from "./log.service";
 
 export namespace AzuracastService {
 
@@ -50,11 +51,9 @@ export namespace AzuracastService {
                 }
                 resolve(response.data);
             }).catch((error) => {
-                if(error !== undefined) {
-                    console.log({code: 500, message: "Error while reading station informations."});
-                    console.log(error);
-                    resolve({code: 500, message: "Error while reading station informations."});
-                }
+                LogService.logError("Error while reading station informations. (" + channelId + ")");
+                console.log(error);
+                resolve({code: 500, message: "Error while reading station informations."});
             });
         });
     }
@@ -66,11 +65,9 @@ export namespace AzuracastService {
             axios.get(stationUrl, {headers: header}).then((response) => {
                 resolve(response.data);
             }).catch((error) => {
-                if(error !== undefined) {
-                    console.log({code: 500, message: "Error while reading station informations."}, error);
-                    console.log(error);
-                    resolve([]);
-                }
+                LogService.logError("Error while reading station informations. (" + channelId + ")");
+                console.log(error);
+                resolve([]);
             });
         });
     }

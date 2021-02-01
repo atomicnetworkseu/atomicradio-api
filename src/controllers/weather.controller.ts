@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import axios from "axios";
 import anonymize from "ip-anonymize";
 import { CacheService } from '../services/cache.service';
+import { LogService } from '../services/log.service';
 
 export namespace WeatherController {
 
@@ -34,7 +35,8 @@ export namespace WeatherController {
                 CacheService.getIpCache().set(anonymize(ip), response.data, 86400000);
                 resolve(response.data);
             }).catch((error) => {
-                console.log("ERROR WHILE REQUESTING IP INFORMATIONS FOR " + anonymize(ip));
+                LogService.logError("Error while requesting ip data. (" + anonymize(ip) + ")");
+                console.log(error);
                 reject();
             });
         });
@@ -45,7 +47,8 @@ export namespace WeatherController {
             axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURI(city)},${encodeURI(country)}&units=metric&lang=en&appid=` + process.env.OPENWEATHER_TOKEN).then((response) => {
                 resolve({city: response.data.name, temp: Math.round(Number(response.data.main.temp)), humidity: response.data.main.humidity, weather: {description: String(response.data.weather[0].description).toLowerCase(), icon: `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@4x.png`}});
             }).catch((error) => {
-                console.log("ERROR WHILE REQUESTING WEATHER INFORMATIONS FOR " + city);
+                LogService.logError("Error while requesting weather data. (" + city + ", " + country + ")");
+                console.log(error);
                 reject();
             });
         });

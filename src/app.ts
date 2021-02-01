@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import morgan from 'morgan';
-import moment from 'moment';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
 import ejs from "ejs";
@@ -17,6 +16,7 @@ import card from './routers/card.router';
 import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
 import { CacheService } from './services/cache.service';
+import { LogService } from './services/log.service';
 
 const app = express();
 const httpServer = new http.Server(app);
@@ -70,17 +70,19 @@ app.use('**', (req, res: any, next: () => void) => {
 });
 
 io.on("connection", (client: any) => {
-    console.info(` ${moment().format('DD/MM/YYYY HH:mm:s')} | CONNECTED | Client connected [id=${client.id}]`);
+    LogService.logInfo(`Client connected [id=${client.id}]`);
     client.emit("one", CacheService.get("channel-one"));
     client.emit("dance", CacheService.get("channel-dance"));
     client.emit("trap", CacheService.get("channel-trap"));
     client.on('disconnect', () => {
-        console.info(` ${moment().format('DD/MM/YYYY HH:mm:s')} | DISCONNECTED | Client gone [id=${client.id}]`);
+        LogService.logInfo(`Client gone [id=${client.id}]`);
     });
 });
 
-app.listen(9000, () => {
-    console.log(` ${moment().format('DD/MM/YYYY HH:mm:s')} | INFO | Web-API is listening on port undefined.`)
+const port = process.env.PORT;
+app.listen(port, () => {
+    LogService.logInfo(`📡 atomicradio API is listening on port ${port}.`);
 }).on('error', err => {
+    LogService.logError("Error while starting atomicradio api. Is the port used?");
     console.log(err);
 });

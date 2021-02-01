@@ -1,6 +1,7 @@
 'use strict';
 import axios from "axios";
 import { CacheService } from "./cache.service";
+import { LogService } from "./log.service";
 
 export namespace ListenerService {
 
@@ -9,7 +10,8 @@ export namespace ListenerService {
             axios.get("http://" + process.env.BOT_DISCORD_API + "/api/listeners").then((response) => {
                 resolve(response.data.listeners);
             }).catch((error) => {
-                console.log("ERROR WHILE GETTING DISCORD");
+                LogService.logError("Error while requesting discord listener data.");
+                console.log(error);
                 reject();
             });
         });
@@ -20,7 +22,8 @@ export namespace ListenerService {
             axios.get("http://" + process.env.BOT_TEAMSPEAK_API + "/api/listeners").then((response) => {
                 resolve(response.data.listeners);
             }).catch((error) => {
-                console.log("ERROR WHILE GETTING TEAMSPEAK");
+                LogService.logError("Error while requesting teamspeak listener data.");
+                console.log(error);
                 reject();
             });
         });
