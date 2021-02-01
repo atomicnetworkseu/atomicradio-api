@@ -3,6 +3,7 @@ import axios from "axios";
 import { ArtworkService } from "./artwork.service";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
+import { SocketService } from "./socket.service";
 
 export namespace AzuracastService {
 
@@ -46,8 +47,10 @@ export namespace AzuracastService {
                 }
                 if(response.data.live.is_live) {
                     CacheService.set("channel-" + channelId, channelInfo, 1000);
+                    SocketService.emitUpdate(channelId, channelInfo);
                 } else {
                     CacheService.set("channel-" + channelId, channelInfo, (response.data.now_playing.remaining*1000));
+                    SocketService.emitUpdate(channelId, channelInfo);
                 }
                 resolve(response.data);
             }).catch((error) => {

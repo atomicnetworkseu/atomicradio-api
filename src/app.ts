@@ -1,7 +1,6 @@
 'use strict';
 import dotenv from 'dotenv';
 import http from 'http';
-import socket from 'socket.io';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -10,17 +9,18 @@ import morgan from 'morgan';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
 import ejs from "ejs";
+import moment from 'moment';
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
 import card from './routers/card.router';
 import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
-import { CacheService } from './services/cache.service';
 import { LogService } from './services/log.service';
+import { SocketService } from './services/socket.service';
 
 const app = express();
 const httpServer = new http.Server(app);
-const io = new socket.Server(httpServer);
+SocketService.init(httpServer);
 
 dotenv.config();
 AzuracastService.getStationInfos("one");
@@ -42,6 +42,10 @@ morgan.token('ip', (req: express.Request, res: express.Response) => {
         ip = ip.split(', ').reverse()[0];
     }
     return anonymize(ip);
+});
+
+morgan.token('date', (req: express.Request, res: express.Response) => {
+    return moment().format('DD/MM/YYYY HH:mm:ss');
 });
 
 app.enable("trust proxy");
@@ -69,18 +73,8 @@ app.use('**', (req, res: any, next: () => void) => {
     return res.status(404).end();
 });
 
-io.on("connection", (client: any) => {
-    LogService.logInfo(`Client connected [id=${client.id}]`);
-    client.emit("one", CacheService.get("channel-one"));
-    client.emit("dance", CacheService.get("channel-dance"));
-    client.emit("trap", CacheService.get("channel-trap"));
-    client.on('disconnect', () => {
-        LogService.logInfo(`Client gone [id=${client.id}]`);
-    });
-});
-
 const port = process.env.PORT;
-app.listen(port, () => {
+httpServer.listen(port, () => {
     LogService.logInfo(`📡 atomicradio API is listening on port ${port}.`);
 }).on('error', err => {
     LogService.logError("Error while starting atomicradio api. Is the port used?");
