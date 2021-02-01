@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import http from 'http';
 import socket from 'socket.io';
 import express from 'express';
-import chalk from 'chalk';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -11,11 +10,13 @@ import morgan from 'morgan';
 import moment from 'moment';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
+import ejs from "ejs";
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
 import card from './routers/card.router';
 import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
+import { CacheService } from './services/cache.service';
 
 const app = express();
 const httpServer = new http.Server(app);
@@ -49,23 +50,30 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
+app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
+app.use('/artworks', express.static('./assets/artworks/'));
+app.use('/fallback', express.static('./assets/fallback/'));
+app.use('/streamer', express.static('./assets/streamer/'));
+app.use('/robots.txt', express.static('./assets/robots.txt'));
 app.use('/channels', channel);
 app.use('/weather', weather);
 app.use('/cards', card);
+app.use(express.static('./views'));
+app.engine('html', ejs.renderFile);
+app.set('view engine', 'html');
 
 app.use(cors({credentials: true, origin: ['*']}));
-app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
-
-app.get("/debug-sentry", function mainHandler(req, res) {
-    throw new Error("My first Sentry error!");
-});
 
 app.use('**', (req, res: any, next: () => void) => {
-    return res.status(404).json({code: 404, message: "Express router not found."});
+    res.status(404).render('welcome.html');
+    return res.status(404).end();
 });
 
 io.on("connection", (client: any) => {
     console.info(` ${moment().format('DD/MM/YYYY HH:mm:s')} | CONNECTED | Client connected [id=${client.id}]`);
+    client.emit("one", CacheService.get("channel-one"));
+    client.emit("dance", CacheService.get("channel-dance"));
+    client.emit("trap", CacheService.get("channel-trap"));
     client.on('disconnect', () => {
         console.info(` ${moment().format('DD/MM/YYYY HH:mm:s')} | DISCONNECTED | Client gone [id=${client.id}]`);
     });
