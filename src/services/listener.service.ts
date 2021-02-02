@@ -30,8 +30,13 @@ export namespace ListenerService {
     }
 
     export async function requestListener() {
-        const discord = await getDiscord();
-        const teamspeak = await getTeamSpeak();
+        let discord = 0;
+        let teamspeak = 0;
+        try {
+            discord = await getDiscord();
+            teamspeak = await getTeamSpeak();
+        } catch(err) {
+        }
         const web = Number(CacheService.get("channel-one").listeners)+Number(CacheService.get("channel-dance").listeners)+Number(CacheService.get("channel-trap").listeners);
         CacheService.set("listeners", {web, discord, teamspeak, all: (web+discord+teamspeak)}, 5000);
     }

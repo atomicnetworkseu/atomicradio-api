@@ -26,13 +26,13 @@ export namespace WeatherController {
 
     function requestIpInformations(ip: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            if(CacheService.getIpCache().get(anonymize(ip)) !== undefined) {
-                if(!CacheService.getIpCache().isExpired(anonymize(ip))) {
-                    resolve(CacheService.getIpCache().get(anonymize(ip)));
+            if(CacheService.getIpCache().get(ip) !== undefined) {
+                if(!CacheService.getIpCache().isExpired(ip)) {
+                    resolve(CacheService.getIpCache().get(ip));
                 }
             }
             axios.get("https://ipinfo.io/" + ip + "?token=" + process.env.IPINFO_TOKEN).then((response) => {
-                CacheService.getIpCache().set(anonymize(ip), response.data, 86400000);
+                CacheService.getIpCache().set(ip, response.data, 86400000);
                 resolve(response.data);
             }).catch((error) => {
                 LogService.logError("Error while requesting ip data. (" + anonymize(ip) + ")");
