@@ -36,6 +36,8 @@ export namespace ListenerService {
             discord = await getDiscord();
             teamspeak = await getTeamSpeak();
         } catch(err) {
+            LogService.logError("Error while requesting listener data.");
+            console.log(err);
         }
         if(CacheService.get("channel-one") === undefined || CacheService.get("channel-dance") === undefined || CacheService.get("channel-trap") === undefined) {
             CacheService.set("listeners", {web: 0, discord: 0, teamspeak: 0, all: 0}, 5000);
