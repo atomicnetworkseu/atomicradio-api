@@ -9,6 +9,9 @@ export namespace ChannelController {
         const channelDance = CacheService.get("channel-dance");
         const channelTrap = CacheService.get("channel-trap");
         const listeners = CacheService.get("listeners");
+        if(listeners === undefined) {
+            return res.status(200).json({all_listeners: 0, listeners: {discord: 0, teamspeak: 0, web: 0, all: 0}, one: channelOne, dance: channelDance, trap: channelTrap});
+        }
         return res.status(200).json({all_listeners: listeners.all, listeners, one: channelOne, dance: channelDance, trap: channelTrap});
     }
 

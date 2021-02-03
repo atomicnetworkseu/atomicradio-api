@@ -6,7 +6,7 @@ import { ListenerService } from "./listener.service";
 
 const cache = new CacheManager({
     cacheDirectory: "caches",
-    memoryOnly: false,
+    memoryOnly: true,
     discardTamperedCache: true
 });
 const ipCache = new CacheManager({
