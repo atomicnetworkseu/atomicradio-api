@@ -28,7 +28,7 @@
 
 #### Configuration
 Rename `.env-example` to `.env` and fill out the variables. In the `.env` file you need your tokens that were mentioned in the prerequisites.<br>
-`⚠️ The data in the .env should not be published publicly otherwise third parties can gain access to your Discord bot or other services that are used here. `
+`⚠️ The data in the .env should not be published publicly otherwise third parties can gain access to all services that are used here. `
 
 #### Installation
 1. Download the github repository.
