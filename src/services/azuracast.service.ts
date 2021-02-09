@@ -12,12 +12,6 @@ export namespace AzuracastService {
         return new Promise((resolve, reject) => {
             const header = { 'X-API-Key': process.env.AZURACAST_TOKEN };
             axios.get(stationUrl, {headers: header}).then(async (response) => {
-                if(CacheService.get("channel-" + channelId) !== undefined) {
-                    const oldChannelInfo = CacheService.get("channel-" + channelId);
-                    if(oldChannelInfo.title !== response.data.now_playing.song.title) {
-                        addHistory(response.data);
-                    }
-                }
                 let channelInfo: any;
                 if(channelId === "one") {
                     channelInfo = {
@@ -26,7 +20,7 @@ export namespace AzuracastService {
                         live: { is_live: response.data.live.is_live, streamer: response.data.live.streamer_name },
                         song: getCurrentSong(response.data),
                         schedule: await getSchedule(response.data),
-                        history: getHistory(response.data).slice(0).reverse(),
+                        history: await getHistory(response.data),
                         stream_urls: {
                             highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
                             middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
@@ -38,7 +32,7 @@ export namespace AzuracastService {
                         listeners: response.data.listeners.current,
                         song: getCurrentSong(response.data),
                         schedule: await getSchedule(response.data),
-                        history: getHistory(response.data).slice(0).reverse(),
+                        history: await getHistory(response.data),
                         stream_urls: {
                             highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
                             middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
@@ -75,6 +69,20 @@ export namespace AzuracastService {
         });
     }
 
+    export function getStationHistory(channelId: string): Promise<any> {
+        const stationUrl = "http://" + process.env.AZURACAST_API + "/api/nowplaying/" + channelId;
+        return new Promise((resolve, reject) => {
+            const header = { 'X-API-Key': process.env.AZURACAST_TOKEN };
+            axios.get(stationUrl, {headers: header}).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                LogService.logError("Error while reading station informations. (" + channelId + ")");
+                console.log(error);
+                resolve({});
+            });
+        });
+    }
+
     export function getCurrentSong(station: any): any {
         let song = {};
         if(station.live.is_live) {
@@ -107,25 +115,18 @@ export namespace AzuracastService {
         });
     }
 
-    export function addHistory(station: any) {
-        const channel = CacheService.get("channel-" + String(station.station.name).split(".")[1]);
-        const history: { artist: any; title: any; playlist: any; start_at: number; end_at: number; duration: number; artworks: any; }[] = channel.history;
-        if(channel.song.title !== station.now_playing.song.title) {
-            if(history.length === 10) {
-                history.shift();
-            }
-            history.push(channel.song);
-        }
-        channel.history = history;
-        CacheService.set("channel-" + String(station.station.name).split(".")[1], channel, 2000);
-    }
-
     export function getHistory(station: any) {
-        if(CacheService.get("channel-" + String(station.station.name).split(".")[1]) !== undefined) {
-            return CacheService.get("channel-" + String(station.station.name).split(".")[1]).history;
-        } else {
-            return [];
-        }
+        return new Promise(async (resolve, reject) => {
+            const stationHistory = await getStationHistory(station.station.name);
+            const history: { artist: any; title: any; playlist: any; start_at: number; end_at: number; duration: number; artworks: any; }[] = [];
+            for(const last of stationHistory.song_history) {
+                if (Number(history.length) < 10) {
+                    const songInfo = { artist: last.song.artist, title: last.song.title, playlist: last.playlist, start_at: Number(last.played_at), end_at: Number(last.played_at) + Number(last.duration), duration: Number(last.duration), artworks: ArtworkService.getArtworks(last.song.id, last.song.art) };
+                    history.push(songInfo);
+                }
+            }
+            resolve(history);
+        });
     }
 
 }

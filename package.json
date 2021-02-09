@@ -1,7 +1,7 @@
 {
-  "name": "www-api",
+  "name": "atomicradio-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "⚡ Official API for atomicradio.eu made with express.",
   "main": "./build/app.js",
   "scripts": {
     "build": "tsc --skipLibCheck",
@@ -10,15 +10,15 @@
     "lint": "tslint -p tsconfig.json --fix"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Kacper Mura",
+  "license": "MIT",
   "devDependencies": {
-    "@types/body-parser": "^1.19.0",
-    "@types/express": "^4.17.11",
     "@types/axios": "^0.14.0",
+    "@types/body-parser": "^1.19.0",
     "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.9",
     "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
     "@types/express-handlebars": "^3.1.0",
     "@types/moment": "^2.13.0",
     "@types/morgan": "^1.9.2",
