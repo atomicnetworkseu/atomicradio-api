@@ -20,11 +20,10 @@
 
 ## Getting Started ✨
 #### Prerequisites
-1. You need your Discord bot token. Check this <a href="https://anidiots.guide/getting-started/getting-started-long-version">Guide</a> for more informations.
-2. You need a AzuraCast api token. Check this <a href="https://www.azuracast.com/developers/api.html#api-authentication">Guide</a> for more informations.
-3. For the user geo location you need a ipinfo.io api token.
-4. The weather route needs a OpenWeatherMap api token. Check this <a href="https://openweathermap.org/appid">Guide</a> for more informations.
-5. Only Node.js v14.X or newer can be used for this project.
+1. You need a AzuraCast api token. Check this <a href="https://www.azuracast.com/developers/api.html#api-authentication">Guide</a> for more informations.
+2. For the user geo location you need a ipinfo.io api token.
+3. The weather route needs a OpenWeatherMap api token. Check this <a href="https://openweathermap.org/appid">Guide</a> for more informations.
+4. Only Node.js v14.X or newer can be used for this project.
 
 #### Configuration
 Rename `.env-example` to `.env` and fill out the variables. In the `.env` file you need your tokens that were mentioned in the prerequisites.<br>
