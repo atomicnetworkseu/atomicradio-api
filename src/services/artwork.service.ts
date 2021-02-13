@@ -32,15 +32,15 @@ export namespace ArtworkService {
                     const writer = fs.createWriteStream(`./assets/artworks/1000-${id}.jpg`);
                     response.data.pipe(writer);
                     writer.on("finish", () => {
-                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(500, 500).toFile(`./assets/artworks/0500-${id}.jpg`).catch((error) => {
+                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(500, 500).jpeg({ quality: 100, chromaSubsampling: '4:4:4', progressive: true }).toFile(`./assets/artworks/0500-${id}.jpg`).catch((error) => {
                             LogService.logError("The size of one artwork could not be resized to 500x500. (" + id + ")");
                             console.log(error);
                         });
-                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(250, 250).toFile(`./assets/artworks/0250-${id}.jpg`).catch((error) => {
+                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(250, 250).jpeg({ quality: 100, chromaSubsampling: '4:4:4', progressive: true }).toFile(`./assets/artworks/0250-${id}.jpg`).catch((error) => {
                             LogService.logError("The size of one artwork could not be resized to 250x250. (" + id + ")");
                             console.log(error);
                         });
-                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(100, 100).toFile(`./assets/artworks/0100-${id}.jpg`).catch((error) => {
+                        sharp(`./assets/artworks/1000-${id}.jpg`).resize(100, 100).jpeg({ quality: 100, chromaSubsampling: '4:4:4', progressive: true }).toFile(`./assets/artworks/0100-${id}.jpg`).catch((error) => {
                             LogService.logError("The size of one artwork could not be resized to 100x100. (" + id + ")");
                             console.log(error);
                         });
