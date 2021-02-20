@@ -34,7 +34,12 @@ export namespace ListenerService {
         let teamspeak = 0;
         try {
             discord = await getDiscord();
-            teamspeak = await getTeamSpeak();
+            /*
+             * We currently do not have the possibility to count TeamSpeak listeners.
+             * This feature will be implemented again soon.
+             * 
+             * teamspeak = await getTeamSpeak();
+             */
         } catch(err) {
             LogService.logError("Error while requesting listener data.");
             console.log(err);
