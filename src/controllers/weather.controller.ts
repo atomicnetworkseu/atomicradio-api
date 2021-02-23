@@ -1,6 +1,8 @@
 'use strict';
 import { Request, Response } from 'express';
 import axios from "axios";
+import anonymize from "ip-anonymize";
+import { CacheService } from '../services/cache.service';
 import { LogService } from '../services/log.service';
 
 export namespace WeatherController {
@@ -11,7 +13,15 @@ export namespace WeatherController {
                 const weather = await requestWeatherData(req.query.lat, req.query.lon);
                 res.status(200).json(weather);
             } else {
-                const weather = await requestWeatherDataByCity("Hamburg", "DE");
+                const ipInfo = await requestIpInformations(req.ip);
+                const country = ipInfo.country;
+                const city = ipInfo.city;
+                if (city === undefined || city === null || country === undefined || country === null) {
+                    const fallbackWeather = await requestWeatherDataByCity("Hamburg", "DE");
+                    res.status(200).json(fallbackWeather);
+                    return;
+                }
+                const weather = await requestWeatherDataByCity(city, country);
                 res.status(200).json(weather);
             }
         } catch(err) {
@@ -37,6 +47,24 @@ export namespace WeatherController {
                 resolve({city: response.data.name, temp: Math.round(Number(response.data.main.temp)), humidity: response.data.main.humidity, weather: {description: String(response.data.weather[0].description).toLowerCase(), icon: `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@4x.png`}});
             }).catch((error) => {
                 LogService.logError("Error while requesting weather data.");
+                console.log(error);
+                reject();
+            });
+        });
+    }
+
+    function requestIpInformations(ip: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            if(CacheService.getIpCache().get(ip) !== undefined) {
+                if(!CacheService.getIpCache().isExpired(ip)) {
+                    resolve(CacheService.getIpCache().get(ip));
+                }
+            }
+            axios.get("https://ipinfo.io/" + ip + "?token=" + process.env.IPINFO_TOKEN).then((response) => {
+                CacheService.getIpCache().set(ip, response.data, 86400000);
+                resolve(response.data);
+            }).catch((error) => {
+                LogService.logError("Error while requesting ip data. (" + anonymize(ip) + ")");
                 console.log(error);
                 reject();
             });

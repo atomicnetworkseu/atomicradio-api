@@ -31,13 +31,13 @@ export namespace ListenerService {
 
     export async function requestListener() {
         let discord = 0;
-        let teamspeak = 0;
+        const teamspeak = 0;
         try {
             discord = await getDiscord();
             /*
              * We currently do not have the possibility to count TeamSpeak listeners.
              * This feature will be implemented again soon.
-             * 
+             *
              * teamspeak = await getTeamSpeak();
              */
         } catch(err) {
