@@ -104,14 +104,12 @@ export namespace AzuracastService {
             for(const queue of stationQueue) {
                 if (!String(queue.song.artist).includes('jingles')) {
                     if (Number(schedule.length) < 5) {
-                        if(new Date().getTime() < (queue.cued_at*1000)) {
-                            if(station.live.is_live && station.station.name === "atr.one") {
-                                const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
-                                schedule.push(songInfo);
-                            } else {
-                                const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art) };
-                                schedule.push(songInfo);
-                            }
+                        if(station.live.is_live && station.station.name === "atr.one") {
+                            const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
+                            schedule.push(songInfo);
+                        } else {
+                            const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art) };
+                            schedule.push(songInfo);
                         }
                     }
                 }
