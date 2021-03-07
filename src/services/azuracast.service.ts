@@ -85,11 +85,11 @@ export namespace AzuracastService {
 
     export function getCurrentSong(station: any): any {
         let song = {};
-        if(station.live.is_live) {
+        if(station.live.is_live && station.station.name === "atr.one") {
             if(String(station.now_playing.song.title).includes('-')) {
-                song = { artist: String(station.now_playing.song.title).split('-')[0], title: String(station.now_playing.song.title).split('-')[1], playlist: station.now_playing.playlist, start_at: Number(station.now_playing.played_at), end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration), duration: Number(station.now_playing.duration), artworks: ArtworkService.getArtworks(station.now_playing.song.id, station.now_playing.song.art) };
+                song = { artist: String(station.now_playing.song.title).split('-')[0], title: String(station.now_playing.song.title).split('-')[1], playlist: station.now_playing.playlist, start_at: Number(station.now_playing.played_at), end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration), duration: Number(station.now_playing.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
             } else {
-                song = { artist: station.now_playing.song.artist, title: station.now_playing.song.title, playlist: station.now_playing.playlist, start_at: Number(station.now_playing.played_at), end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration), duration: Number(station.now_playing.duration), artworks: ArtworkService.getArtworks(station.now_playing.song.id, station.now_playing.song.art) };
+                song = { artist: station.now_playing.song.artist, title: station.now_playing.song.title, playlist: station.now_playing.playlist, start_at: Number(station.now_playing.played_at), end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration), duration: Number(station.now_playing.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
             }
         } else {
             song = { artist: station.now_playing.song.artist, title: station.now_playing.song.title, playlist: station.now_playing.playlist, start_at: Number(station.now_playing.played_at), end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration), duration: Number(station.now_playing.duration), artworks: ArtworkService.getArtworks(station.now_playing.song.id, station.now_playing.song.art) };
@@ -105,8 +105,13 @@ export namespace AzuracastService {
                 if (!String(queue.song.artist).includes('jingles')) {
                     if (Number(schedule.length) < 5) {
                         if(new Date().getTime() < (queue.cued_at*1000)) {
-                            const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art) };
-                            schedule.push(songInfo);
+                            if(station.live.is_live && station.station.name === "atr.one") {
+                                const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
+                                schedule.push(songInfo);
+                            } else {
+                                const songInfo = { artist: queue.song.artist, title: queue.song.title, playlist: queue.playlist, start_at: Number(queue.cued_at), end_at: Number(queue.cued_at) + Number(queue.duration), duration: Number(queue.duration), artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art) };
+                                schedule.push(songInfo);
+                            }
                         }
                     }
                 }
@@ -121,8 +126,13 @@ export namespace AzuracastService {
             const history: { artist: any; title: any; playlist: any; start_at: number; end_at: number; duration: number; artworks: any; }[] = [];
             for(const last of stationHistory.song_history) {
                 if (Number(history.length) < 10) {
-                    const songInfo = { artist: last.song.artist, title: last.song.title, playlist: last.playlist, start_at: Number(last.played_at), end_at: Number(last.played_at) + Number(last.duration), duration: Number(last.duration), artworks: ArtworkService.getArtworks(last.song.id, last.song.art) };
-                    history.push(songInfo);
+                    if(station.live.is_live && station.station.name === "atr.one") {
+                        const songInfo = { artist: last.song.artist, title: last.song.title, playlist: last.playlist, start_at: Number(last.played_at), end_at: Number(last.played_at) + Number(last.duration), duration: Number(last.duration), artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name) };
+                        history.push(songInfo);
+                    } else {
+                        const songInfo = { artist: last.song.artist, title: last.song.title, playlist: last.playlist, start_at: Number(last.played_at), end_at: Number(last.played_at) + Number(last.duration), duration: Number(last.duration), artworks: ArtworkService.getArtworks(last.song.id, last.song.art) };
+                        history.push(songInfo);
+                    }
                 }
             }
             resolve(history);
