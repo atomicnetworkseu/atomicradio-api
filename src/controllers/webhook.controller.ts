@@ -5,7 +5,7 @@ import { AzuracastService } from '../services/azuracast.service';
 export namespace WebhookController {
 
     export function azuracastStream(req: Request, res: Response) {
-        if(!req.headers.authorization.includes(Buffer.from("azuracast:" + process.env.AZURACAST_TOKEN).toString('base64'))) {
+        if(!req.headers.authorization.includes(Buffer.from("secret-user-psshhh:" + process.env.API_TOKEN).toString('base64'))) {
             return res.status(401).json({code: 401, message: 'Your authentication was not successful.'});
         }
         

@@ -19,11 +19,23 @@ export namespace ListenerService {
 
     export function getTeamSpeak(): Promise<number> {
         return new Promise(async (resolve, reject) => {
-            axios.get("http://" + process.env.BOT_TEAMSPEAK_API + "/api/listeners").then((response) => {
-                resolve(response.data.listeners);
+            const header = { 'Authorization': "Basic " + process.env.TS3AUDIOBOT_API_TOKEN };
+            axios.get("http://" + process.env.TS3AUDIOBOT_API + "/api/bot/list", {headers: header}).then((response) => {
+                for(let bot of response.data) {
+                    axios.get("http://" + process.env.TS3AUDIOBOT_API + "/api/bot/use/" + bot.Id + "/(/listeners)", {headers: header}).then((listenersResponse) => {
+                        CacheService.getTsAbCache().set("tsab-" + bot.Id, Number(listenersResponse.data.Value));
+                    }).catch((error) => {
+                        LogService.logError("Error while requesting teamspeak listener data.");
+                        reject();
+                    });
+                }
+                let listeners = 0;
+                for(let values of CacheService.getTsAbCache().values()) {
+                    listeners += Number(values.data);
+                }
+                resolve(listeners);
             }).catch((error) => {
                 LogService.logError("Error while requesting teamspeak listener data.");
-                console.log(error);
                 reject();
             });
         });
@@ -31,18 +43,12 @@ export namespace ListenerService {
 
     export async function requestListener() {
         let discord = 0;
-        const teamspeak = 0;
+        let teamspeak = 0;
         try {
             discord = await getDiscord();
-            /*
-             * We currently do not have the possibility to count TeamSpeak listeners.
-             * This feature will be implemented again soon.
-             *
-             * teamspeak = await getTeamSpeak();
-             */
+            teamspeak = await getTeamSpeak();
         } catch(err) {
             LogService.logError("Error while requesting listener data.");
-            console.log(err);
         }
         if(CacheService.get("channel-one") === undefined || CacheService.get("channel-dance") === undefined || CacheService.get("channel-trap") === undefined) {
             CacheService.set("listeners", {web: 0, discord: 0, teamspeak: 0, all: 0}, 5000);
