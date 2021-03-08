@@ -13,10 +13,6 @@ const ipCache = new CacheManager({
     memoryOnly: true,
     discardTamperedCache: true
 });
-const tsabCache = new CacheManager({
-    memoryOnly: true,
-    discardTamperedCache: true
-});
 
 cache.on("outdated", (name: string, data?: any) => {
     if(name.startsWith("channel-")) {
@@ -40,10 +36,6 @@ export namespace CacheService {
 
     export function getIpCache() {
         return ipCache;
-    }
-
-    export function getTsAbCache() {
-        return tsabCache;
     }
 
 }
