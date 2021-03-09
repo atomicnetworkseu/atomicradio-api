@@ -8,7 +8,6 @@ import cors from 'cors';
 import morgan from 'morgan';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
-import ejs from "ejs";
 import moment from 'moment';
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
@@ -62,13 +61,9 @@ app.use('/channels', channel);
 app.use('/weather', weather);
 app.use('/cards', card);
 app.use('/webhook', webhook);
-app.use(express.static('./views'));
-app.engine('html', ejs.renderFile);
-app.set('view engine', 'html');
 
 app.use('**', (req, res: any, next: () => void) => {
-    res.status(404).render('welcome.html');
-    return res.status(404).end();
+    return res.status(200).redirect("https://docs.atomicradio.eu/");
 });
 
 const port = process.env.PORT;
