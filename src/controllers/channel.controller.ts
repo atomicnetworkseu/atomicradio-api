@@ -61,7 +61,7 @@ export namespace ChannelController {
     export function getChannelListeners(req: Request, res: Response) {
         if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
             const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
-            return res.status(200).json(channel.listeners);
+            return res.status(200).json({listeners: channel.listeners});
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
         }
