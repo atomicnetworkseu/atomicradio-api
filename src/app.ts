@@ -9,6 +9,7 @@ import morgan from 'morgan';
 import expressHandlebars from 'express-handlebars';
 import anonymize from "ip-anonymize";
 import moment from 'moment';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
 import card from './routers/card.router';
@@ -20,6 +21,8 @@ import { SocketService } from './services/socket.service';
 
 const app = express();
 const httpServer = new http.Server(app);
+const globalLimiter = new RateLimiterMemory({keyPrefix: "global-limiter", points: 250, duration: 60, blockDuration: 60*60});
+const weatherLimiter = new RateLimiterMemory({keyPrefix: "weather-limiter", points: 100, duration: 60, blockDuration: 60*60});
 SocketService.init(httpServer);
 
 dotenv.config();
@@ -48,6 +51,26 @@ morgan.token('date', (req: express.Request, res: express.Response) => {
     return moment().format('DD/MM/YYYY HH:mm:ss');
 });
 
+function globalRateLimiter(req: express.Request, res: express.Response, next: () => void) {
+    globalLimiter.consume(req.ip, 1).then((value) => {
+        res.set({"X-RateLimit-Limit": 250, "X-RateLimit-Remaining": value.remainingPoints, "X-RateLimit-Reset": new Date(Date.now() + value.msBeforeNext), "X-RateLimit-Retry": value.msBeforeNext / 1000});
+        next();
+    }).catch((error) => {
+        res.set({"X-RateLimit-Limit": 250, "X-RateLimit-Remaining": error.remainingPoints, "X-RateLimit-Reset": new Date(Date.now() + error.msBeforeNext), "X-RateLimit-Retry": error.msBeforeNext / 1000});
+        res.status(429).json({code: 429, message: "You are being rate limited."});
+    });
+}
+
+function weatherRateLimiter(req: express.Request, res: express.Response, next: () => void) {
+    weatherLimiter.consume(req.ip, 1).then((value) => {
+        res.set({"X-RateLimit-Limit": 100, "X-RateLimit-Remaining": value.remainingPoints, "X-RateLimit-Reset": new Date(Date.now() + value.msBeforeNext), "X-RateLimit-Retry": value.msBeforeNext / 1000});
+        next();
+    }).catch((error) => {
+        res.set({"X-RateLimit-Limit": 100, "X-RateLimit-Remaining": error.remainingPoints, "X-RateLimit-Reset": new Date(Date.now() + error.msBeforeNext), "X-RateLimit-Retry": error.msBeforeNext / 1000});
+        res.status(429).json({code: 429, message: "You are being rate limited."});
+    });
+}
+
 app.enable("trust proxy");
 app.use(cors({credentials: true, origin: '*'}));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -57,10 +80,10 @@ app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
 app.use('/assets', express.static('./assets/'));
-app.use('/channels', channel);
-app.use('/weather', weather);
-app.use('/cards', card);
-app.use('/webhook', webhook);
+app.use('/channels', globalRateLimiter, channel);
+app.use('/weather', weatherRateLimiter, weather);
+app.use('/cards', globalRateLimiter, card);
+app.use('/webhook', globalRateLimiter, webhook);
 
 app.use('**', (req, res: any, next: () => void) => {
     return res.status(200).redirect("https://docs.atomicradio.eu/");
