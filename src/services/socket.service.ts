@@ -14,6 +14,7 @@ export namespace SocketService {
             client.emit("one", CacheService.get("channel-one"));
             client.emit("dance", CacheService.get("channel-dance"));
             client.emit("trap", CacheService.get("channel-trap"));
+            client.emit("listeners", CacheService.get("listeners").all);
             client.on('disconnect', () => {
                 LogService.logInfo(`Client gone [id=${client.id}]`);
             });

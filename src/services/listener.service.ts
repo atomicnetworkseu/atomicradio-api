@@ -2,6 +2,7 @@
 import axios from "axios";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
+import { SocketService } from "./socket.service";
 
 export namespace ListenerService {
 
@@ -46,10 +47,12 @@ export namespace ListenerService {
         }
         if(CacheService.get("channel-one") === undefined || CacheService.get("channel-dance") === undefined || CacheService.get("channel-trap") === undefined) {
             CacheService.set("listeners", {web: 0, discord: 0, teamspeak: 0, all: 0}, 5000);
+            SocketService.emitUpdate("listeners", 0);
             return;
         }
         const web = Number(CacheService.get("channel-one").listeners)+Number(CacheService.get("channel-dance").listeners)+Number(CacheService.get("channel-trap").listeners);
         CacheService.set("listeners", {web, discord, teamspeak, all: (web+discord+teamspeak)}, 5000);
+        SocketService.emitUpdate("listeners", (web+discord+teamspeak));
     }
 
     export function getListener() {
