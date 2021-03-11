@@ -9,6 +9,9 @@
     "start": "tsc --skipLibCheck && node ./build/app.js",
     "lint": "tslint -p tsconfig.json --fix"
   },
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "keywords": [],
   "author": "Kacper Mura",
   "license": "MIT",
