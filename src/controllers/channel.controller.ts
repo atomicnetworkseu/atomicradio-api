@@ -16,7 +16,14 @@ export namespace ChannelController {
     }
 
     export function getChannelById(req: Request, res: Response) {
-        switch (String(req.params.id).toLowerCase()) {
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        switch (channelId) {
             case "one":
                 const channelOne = CacheService.get("channel-one");
                 return res.status(200).json(channelOne);
@@ -32,8 +39,15 @@ export namespace ChannelController {
     }
 
     export function getChannelSong(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one' || channelId === 'dance' || channelId === 'trap') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json(channel.song);
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
@@ -41,8 +55,15 @@ export namespace ChannelController {
     }
 
     export function getChannelDescription(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one' || channelId === 'dance' || channelId === 'trap') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json(channel.description);
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
@@ -50,8 +71,15 @@ export namespace ChannelController {
     }
 
     export function getChannelSchedule(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one' || channelId === 'dance' || channelId === 'trap') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json(channel.schedule);
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
@@ -59,8 +87,15 @@ export namespace ChannelController {
     }
 
     export function getChannelHistory(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one' || channelId === 'dance' || channelId === 'trap') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json(channel.history);
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
@@ -68,8 +103,15 @@ export namespace ChannelController {
     }
 
     export function getChannelListeners(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one' || channelId === 'dance' || channelId === 'trap') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json({listeners: channel.listeners});
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
@@ -77,10 +119,17 @@ export namespace ChannelController {
     }
 
     export function getChannelLive(req: Request, res: Response) {
-        if(String(req.params.id).toLowerCase() === 'one') {
-            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+        let channelId = String(req.params.id).toLowerCase();
+        if(channelId.includes("atr.")) {
+            channelId = channelId.split(".")[1];
+        } else if(channelId.includes("atr-")) {
+            channelId = channelId.split("-")[1];
+        }
+
+        if(channelId === 'one') {
+            const channel = CacheService.get("channel-" + channelId);
             return res.status(200).json(channel.live);
-        } else if(String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
+        } else if(channelId === 'dance' || channelId === 'trap') {
             return res.status(500).json({code: 500, message: "Only our channel 'atr.one' has live metadata."});
         } else {
             return res.status(404).json({code: 404, message: 'This channel does not exist.'});
