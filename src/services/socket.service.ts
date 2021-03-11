@@ -8,7 +8,7 @@ let io: socket.Server;
 export namespace SocketService {
 
     export function init(httpServer: any) {
-        io = new socket.Server(httpServer);
+        io = new socket.Server(httpServer, {cors: {origin: "*"}});
         io.on("connection", (client: any) => {
             LogService.logInfo(`Client connected [id=${client.id}]`);
             client.emit("one", CacheService.get("channel-one"));
