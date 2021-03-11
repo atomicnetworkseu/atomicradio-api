@@ -16,6 +16,7 @@ export namespace AzuracastService {
                 if(channelId === "one") {
                     channelInfo = {
                         name: response.data.station.name,
+                        description: getStationDescription(response.data.station.name),
                         listeners: response.data.listeners.current,
                         live: { is_live: response.data.live.is_live, streamer: response.data.live.streamer_name },
                         song: getCurrentSong(response.data),
@@ -29,6 +30,7 @@ export namespace AzuracastService {
                 } else {
                     channelInfo = {
                         name: response.data.station.name,
+                        description: getStationDescription(response.data.station.name),
                         listeners: response.data.listeners.current,
                         song: getCurrentSong(response.data),
                         schedule: await getSchedule(response.data),
@@ -53,6 +55,17 @@ export namespace AzuracastService {
                 resolve({code: 500, message: "Error while reading station informations."});
             });
         });
+    }
+
+    export function getStationDescription(channelId: string) {
+        switch (channelId) {
+          case "atr.one":
+            return { de: "Entdecke das beste aus der Musikwelt und sei live dabei wenn sich Newcomer mit Chartlegenden batteln!", en: "Discover the best of the music world and be there live when newcomers battle each other with chart legends!" };
+          case "atr.dance":
+            return { de: "Immer auf dem aktuellstem Stand über die besten Electrosongs, Mashups und Clubsounds.", en: "Always up to date about the best electro songs, mashups and club sounds." };
+          case "atr.trap":
+            return { de: "Fühle unsere, auf dich zugeschnittene Musik aus der Trap und Rapwelt zu jeder Uhrzeit, den ganzen Tag.", en: "Feel our customized music from the trap and rap world at any time, all day." };
+        }
     }
 
     export function getStationQueue(channelId: string): Promise<any[]> {
