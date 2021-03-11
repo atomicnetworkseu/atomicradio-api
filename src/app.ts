@@ -78,13 +78,28 @@ app.use(cookieParser());
 app.engine('handlebars', expressHandlebars({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
+
+app.get('/', (req, res: any, next: () => void) => {
+    return res.status(200).redirect("https://docs.atomicradio.eu/");
+});
+
 app.use('/assets', express.static('./assets/'));
 app.use('/channels', globalRateLimiter, channel);
 app.use('/weather', weatherRateLimiter, weather);
 app.use('/cards', globalRateLimiter, card);
 
-app.use('**', (req, res: any, next: () => void) => {
-    return res.status(200).redirect("https://docs.atomicradio.eu/");
+app.use('*', (req, res: any, next: () => void) => {
+    const randomMessage = [
+        "I went to this endpoint and all I got was this lousy 404 error!",
+        "Congratulations, you broke the Internet.",
+        "The endpoint you're after no longer exists.",
+        "Houston, we have a problem!",
+        "This is not the endpoint you're looking for. Move along...",
+        "It's looking like you have taken a wrong turn. Don't worry it happens to the best of us.",
+        "We searched high and low but couldn't find what you're looking for.",
+        "Oops, the planet you are looking for doesn't exist Captain!"
+    ];
+    return res.status(404).json({code: 404, messsage: randomMessage[Math.floor(Math.random() * randomMessage.length)]});
 });
 
 const port = process.env.PORT;
