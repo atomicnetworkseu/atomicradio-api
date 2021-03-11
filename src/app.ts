@@ -13,7 +13,6 @@ import { RateLimiterMemory } from 'rate-limiter-flexible';
 import channel from './routers/channel.router';
 import weather from './routers/weather.router';
 import card from './routers/card.router';
-import webhook from './routers/webhook.router';
 import { AzuracastService } from './services/azuracast.service';
 import { ListenerService } from './services/listener.service';
 import { LogService } from './services/log.service';
@@ -83,7 +82,6 @@ app.use('/assets', express.static('./assets/'));
 app.use('/channels', globalRateLimiter, channel);
 app.use('/weather', weatherRateLimiter, weather);
 app.use('/cards', globalRateLimiter, card);
-app.use('/webhook', globalRateLimiter, webhook);
 
 app.use('**', (req, res: any, next: () => void) => {
     return res.status(200).redirect("https://docs.atomicradio.eu/");
