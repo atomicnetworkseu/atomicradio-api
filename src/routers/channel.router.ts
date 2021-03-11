@@ -10,6 +10,8 @@ router.get('/:id/listeners', ChannelController.getChannelListeners);
 router.get('/:id/description', ChannelController.getChannelDescription);
 router.get('/:id/history', ChannelController.getChannelHistory);
 router.get('/:id/song', ChannelController.getChannelSong);
+router.get('/live', ChannelController.getChannelLive);
+router.post('/live', ChannelController.updateChannelLive);
 router.get('/:id', ChannelController.getChannelById);
 router.get('/', ChannelController.getChannels);
 
