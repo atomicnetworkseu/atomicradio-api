@@ -124,7 +124,7 @@ export namespace ChannelController {
             const channel = CacheService.get("channel-one");
             return res.status(200).json(channel.live);
         }
-        
+
         let channelId = String(req.params.id).toLowerCase();
         if(channelId.includes("atr.")) {
             channelId = channelId.split(".")[1];
