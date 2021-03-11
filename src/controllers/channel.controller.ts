@@ -40,6 +40,15 @@ export namespace ChannelController {
         }
     }
 
+    export function getChannelDescription(req: Request, res: Response) {
+        if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
+            const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
+            return res.status(200).json(channel.description);
+        } else {
+            return res.status(404).json({code: 404, message: 'This channel does not exist.'});
+        }
+    }
+
     export function getChannelSchedule(req: Request, res: Response) {
         if(String(req.params.id).toLowerCase() === 'one' || String(req.params.id).toLowerCase() === 'dance' || String(req.params.id).toLowerCase() === 'trap') {
             const channel = CacheService.get("channel-" + String(req.params.id).toLowerCase());
