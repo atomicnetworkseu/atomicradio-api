@@ -45,4 +45,4 @@ npm run start
 ````
 
 ## License 📑
-This code is available under the <a href="https://github.com/atomicnetworkseu/atomicradio-api/blob/master/LICENSE">MIT License</a>.
+This code is available under the <a href="https://github.com/atomicnetworkseu/atomicradio-api/blob/master/LICENSE">Mozilla Public License Version 2.0</a>.
