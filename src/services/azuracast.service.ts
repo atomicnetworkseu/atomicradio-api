@@ -24,9 +24,9 @@ export namespace AzuracastService {
               schedule: await getSchedule(response.data),
               history: await getHistory(response.data),
               stream_urls: {
-                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
-                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
-                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality.mp3"
+                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
+                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
+                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
               }
             };
           } else {
@@ -38,9 +38,9 @@ export namespace AzuracastService {
               schedule: await getSchedule(response.data),
               history: await getHistory(response.data),
               stream_urls: {
-                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality.mp3",
-                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality.mp3",
-                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality.mp3"
+                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
+                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
+                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
               }
             };
           }
