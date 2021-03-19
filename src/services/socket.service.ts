@@ -1,9 +1,11 @@
 "use strict";
 import socket from "socket.io";
+import { Server } from "ws";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
 
 let io: socket.Server;
+let ws: Server;
 
 export namespace SocketService {
   export function init(httpServer: any) {
@@ -18,9 +20,45 @@ export namespace SocketService {
         LogService.logInfo(`Client gone [id=${client.id}]`);
       });
     });
+
+    ws = new Server({port: 3010});
+    ws.on("connection", (webSocket: WebSocket) => {
+      const id = makeWebSocketId();
+      LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
+      CacheService.getWebSocketCache().set(id, webSocket);
+      webSocket.send(JSON.stringify(CacheService.get("channel-one")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-dance")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-trap")));
+      webSocket.onclose = () => {
+        CacheService.getWebSocketCache().set(id, undefined);
+        LogService.logInfo(`PreMiD disconnected over websockets. [id=${id}]`);
+      }
+      webSocket.onerror = () => {
+        CacheService.getWebSocketCache().set(id, undefined);
+        LogService.logInfo(`PreMiD errored over websockets. [id=${id}]`);
+      }
+    });
   }
 
   export function emitUpdate(key: string, data: any) {
+    if(key !== "listeners") {
+      for(const webSocketClientKey of CacheService.getWebSocketCache().keys()) {
+        const webSocketClient = CacheService.getWebSocketCache().get(webSocketClientKey);
+        if(webSocketClient !== undefined) {
+          webSocketClient.send(JSON.stringify(data));
+        }
+      }
+    }
     io.emit(key, data);
   }
+
+  export function makeWebSocketId() {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < 5; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 }

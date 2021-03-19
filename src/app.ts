@@ -9,6 +9,7 @@ import morgan from "morgan";
 import expressHandlebars from "express-handlebars";
 import anonymize from "ip-anonymize";
 import moment from "moment";
+import promMiddleware from "express-prometheus-middleware";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 import channel from "./routers/channel.router";
 import weather from "./routers/weather.router";
@@ -107,6 +108,7 @@ function weatherRateLimiter(req: express.Request, res: express.Response, next: (
 }
 
 app.enable("trust proxy");
+app.use(promMiddleware({metricsPath: "/metrics", collectDefaultMetrics: true, requestDurationBuckets: [0.1, 0.5, 1, 1.5]}));
 app.use(cors({ credentials: true, origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
