@@ -53,11 +53,10 @@ export namespace SocketService {
   }
 
   export function makeWebSocketId() {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < 5; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    let result  = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    for (let i = 0; i < 5; i++) {
+       result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
  }
