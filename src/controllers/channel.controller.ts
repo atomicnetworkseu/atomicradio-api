@@ -163,7 +163,7 @@ export namespace ChannelController {
       return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
     }
 
-    CacheService.getTeamSpeakCache().set("teamspeak-" + req.body.botId, req.body, 600000);
+    CacheService.getTeamSpeakCache().set("teamspeak-" + req.body.botId, req.body, 86400000);
     return res.status(200).json({ code: 200, message: "Hello TS3AudioBot!" });
   }
 }
