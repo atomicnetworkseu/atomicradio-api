@@ -103,7 +103,15 @@ function weatherRateLimiter(req: express.Request, res: express.Response, next: (
         "X-RateLimit-Reset": new Date(Date.now() + error.msBeforeNext),
         "X-RateLimit-Retry": error.msBeforeNext / 1000
       });
-      res.status(429).json({ code: 429, message: "You are being rate limited." });
+      if(req.query.token) {
+        if (String(req.query.token).includes(process.env.API_TOKEN)) {
+          next();
+        } else {
+          res.status(429).json({ code: 429, message: "You are being rate limited." });
+        }
+      } else {
+        res.status(429).json({ code: 429, message: "You are being rate limited." });
+      }
     });
 }
 

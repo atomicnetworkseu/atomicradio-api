@@ -12,6 +12,7 @@ router.get("/:id/history", ChannelController.getChannelHistory);
 router.get("/:id/song", ChannelController.getChannelSong);
 router.get("/live", ChannelController.getChannelLive);
 router.post("/live", ChannelController.updateChannelLive);
+router.post("/listeners", ChannelController.updateTeamSpeakListeners);
 router.get("/:id", ChannelController.getChannelById);
 router.get("/", ChannelController.getChannels);
 

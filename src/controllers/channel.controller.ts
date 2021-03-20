@@ -154,4 +154,16 @@ export namespace ChannelController {
     AzuracastService.getStationInfos("one");
     return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
   }
+
+  export function updateTeamSpeakListeners(req: Request, res: Response) {
+    if (!req.query.token) {
+      return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+    }
+    if (!String(req.query.token).includes(process.env.API_TOKEN)) {
+      return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+    }
+
+    CacheService.getTeamSpeakCache().set("teamspeak-" + req.body.botId, req.body, 600000);
+    return res.status(200).json({ code: 200, message: "Hello TS3AudioBot!" });
+  }
 }

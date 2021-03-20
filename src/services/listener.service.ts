@@ -22,30 +22,23 @@ export namespace ListenerService {
 
   export function getTeamSpeak(): Promise<number> {
     return new Promise(async (resolve, reject) => {
-      axios
-        .get("http://" + process.env.BOT_TEAMSPEAK_API + "/api/listeners")
-        .then((response) => {
-          resolve(response.data.listeners);
-        })
-        .catch((error) => {
-          LogService.logError("Error while requesting teamspeak listener data.");
-          console.log(error);
-          reject();
-        });
+      let count = 0;
+      for (let botId of CacheService.getTeamSpeakCache().keys()) {
+        const bot = CacheService.getTeamSpeakCache().get(botId);
+        if (!CacheService.getTeamSpeakCache().isExpired(botId)) {
+          count += Number(bot.value);
+        }
+      }
+      resolve(count);
     });
   }
 
   export async function requestListener() {
     let discord = 0;
-    const teamspeak = 0;
+    let teamspeak = 0;
     try {
       discord = await getDiscord();
-      /*
-       * We currently do not have the possibility to count TeamSpeak listeners.
-       * This feature will be implemented again soon.
-       *
-       * teamspeak = await getTeamSpeak();
-       */
+      teamspeak = await getTeamSpeak();
     } catch (err) {
       LogService.logError("Error while requesting listener data.");
       console.log(err);

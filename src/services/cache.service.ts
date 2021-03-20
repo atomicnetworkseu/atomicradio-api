@@ -12,6 +12,10 @@ const ipCache = new CacheManager({
   memoryOnly: true,
   discardTamperedCache: true
 });
+const teamspeakCache = new CacheManager({
+  memoryOnly: true,
+  discardTamperedCache: true
+});
 const webSocketCache = new CacheManager({
   memoryOnly: true,
   discardTamperedCache: true
@@ -41,5 +45,9 @@ export namespace CacheService {
 
   export function getWebSocketCache() {
     return webSocketCache;
+  }
+
+  export function getTeamSpeakCache() {
+    return teamspeakCache;
   }
 }
