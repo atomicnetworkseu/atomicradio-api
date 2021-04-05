@@ -42,7 +42,7 @@ export namespace WeatherController {
             humidity: response.data.main.humidity,
             weather: {
               description: String(response.data.weather[0].description).toLowerCase(),
-              icon: `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@4x.png`
+              icon: getWeatherIcon(response.data.weather[0].icon)
             }
           });
         })
@@ -65,7 +65,7 @@ export namespace WeatherController {
             humidity: response.data.main.humidity,
             weather: {
               description: String(response.data.weather[0].description).toLowerCase(),
-              icon: `https://openweathermap.org/img/wn/${response.data.weather[0].icon}@4x.png`
+              icon: getWeatherIcon(response.data.weather[0].icon)
             }
           });
         })
@@ -96,5 +96,47 @@ export namespace WeatherController {
           reject();
         });
     });
+  }
+
+  function getWeatherIcon(icon: string): string {
+    if(icon.includes("01d")) {
+      return "https://cdn.atomicradio.eu/weather/day/clearsky.svg";
+    } else if(icon.includes("01n")) {
+      return "https://cdn.atomicradio.eu/weather/night/clearsky.svg";
+    } else if(icon.includes("02d")) {
+      return "https://cdn.atomicradio.eu/weather/day/fewclouds.svg";
+    } else if(icon.includes("02n")) {
+      return "https://cdn.atomicradio.eu/weather/night/fewclouds.svg";
+    } else if(icon.includes("03d")) {
+      return "https://cdn.atomicradio.eu/weather/day/scatteredclouds.svg";
+    } else if(icon.includes("03n")) {
+      return "https://cdn.atomicradio.eu/weather/night/scatteredclouds.svg";
+    } else if(icon.includes("04d")) {
+      return "https://cdn.atomicradio.eu/weather/day/brokenclouds.svg";
+    } else if(icon.includes("04n")) {
+      return "https://cdn.atomicradio.eu/weather/night/brokenclouds.svg";
+    } else if(icon.includes("09d")) {
+      return "https://cdn.atomicradio.eu/weather/day/showerrain.svg";
+    } else if(icon.includes("09n")) {
+      return "https://cdn.atomicradio.eu/weather/night/showerrain.svg";
+    } else if(icon.includes("10d")) {
+      return "https://cdn.atomicradio.eu/weather/day/rain.svg";
+    } else if(icon.includes("10n")) {
+      return "https://cdn.atomicradio.eu/weather/night/rain.svg";
+    } else if(icon.includes("11d")) {
+      return "https://cdn.atomicradio.eu/weather/day/thunder.svg";
+    } else if(icon.includes("11n")) {
+      return "https://cdn.atomicradio.eu/weather/night/thunder.svg";
+    } else if(icon.includes("13d")) {
+      return "https://cdn.atomicradio.eu/weather/day/snow.svg";
+    } else if(icon.includes("13n")) {
+      return "https://cdn.atomicradio.eu/weather/night/snow.svg";
+    } else if(icon.includes("50d")) {
+      return "https://cdn.atomicradio.eu/weather/day/mist.svg";
+    } else if(icon.includes("50n")) {
+      return "https://cdn.atomicradio.eu/weather/night/mist.svg";
+    } else {
+      return "https://cdn.atomicradio.eu/weather/day/scatteredclouds.svg";
+    }
   }
 }
