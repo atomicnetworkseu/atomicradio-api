@@ -118,8 +118,8 @@ function weatherRateLimiter(req: express.Request, res: express.Response, next: (
 app.enable("trust proxy");
 app.use(promMiddleware({metricsPath: "/metrics", collectDefaultMetrics: true, requestDurationBuckets: [0.1, 0.5, 1, 1.5]}));
 app.use(cors({ credentials: true, origin: "*" }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '16mb' }));
+app.use(bodyParser.json({ limit: '16mb' }));
 app.use(cookieParser());
 app.engine("handlebars", expressHandlebars({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");

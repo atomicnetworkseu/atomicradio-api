@@ -1,7 +1,10 @@
 "use strict";
 import { Request, Response } from "express";
+import JWT from "jsonwebtoken";
 import { CacheService } from "../services/cache.service";
 import { AzuracastService } from "../services/azuracast.service";
+import { MAirListService } from "../services/mairlist.service";
+import { LogService } from "../services/log.service";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
@@ -144,15 +147,51 @@ export namespace ChannelController {
   }
 
   export function updateChannelLive(req: Request, res: Response) {
-    if (!req.headers.authorization) {
-      return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
-    }
-    if (!req.headers.authorization.includes(Buffer.from("secret-user-psshhh:" + process.env.API_TOKEN).toString("base64"))) {
-      return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
-    }
+    if(req.body.type === "metadata") {
+      if (!req.headers.authorization) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
 
-    AzuracastService.getStationInfos("one");
-    return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
+      const base64Token = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("utf8");
+      const jtwToken = base64Token.split(":")[1];
+      try {
+        const token: any = JWT.verify(jtwToken, process.env.STREAMER_TOKEN);
+        const channel = CacheService.get("channel-one");
+        if(channel.live.is_live === true) {
+          if(token.name !== channel.live.streamer) {
+            LogService.logWarn(token.name + " has tried to transmit metadata. Metadata blocked!");
+            return res.status(200).json({ code: 500, message: "Your profile is blocked." });
+          }
+        }
+
+        LogService.logInfo("New metadata obtained for atr.one by " + token.name);
+        MAirListService.updateMetaData(req.body);
+        return res.status(200).json({ code: 200, message: "Hello Streamer!" });
+      } catch(err) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
+
+    } else if(req.body.type === "new_streamer") {
+      if (!req.headers.authorization) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
+      if (!req.headers.authorization.includes(Buffer.from(process.env.API_TOKEN).toString("base64"))) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
+
+      const token = JWT.sign({ name: req.body.name }, process.env.STREAMER_TOKEN);
+      return res.status(200).json({ token });
+    } else {
+      if (!req.headers.authorization) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
+      if (!req.headers.authorization.includes(Buffer.from("secret-user-psshhh:" + process.env.API_TOKEN).toString("base64"))) {
+        return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
+      }
+
+      AzuracastService.getStationInfos("one");
+      return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
+    }
   }
 
   export function updateTeamSpeakListeners(req: Request, res: Response) {

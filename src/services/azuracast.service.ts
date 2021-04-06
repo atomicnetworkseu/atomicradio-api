@@ -3,6 +3,7 @@ import axios from "axios";
 import { ArtworkService } from "./artwork.service";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
+import { MAirListService } from "./mairlist.service";
 import { SocketService } from "./socket.service";
 
 export namespace AzuracastService {
@@ -44,7 +45,7 @@ export namespace AzuracastService {
               }
             };
           }
-          if (response.data.live.is_live) {
+          if (response.data.live.is_live && channelInfo.name === "atr.one") {
             CacheService.set("channel-" + channelId, channelInfo, 1000);
             SocketService.emitUpdate(channelId, channelInfo);
           } else {
@@ -118,27 +119,7 @@ export namespace AzuracastService {
   export function getCurrentSong(station: any): any {
     let song = {};
     if (station.live.is_live && station.station.name === "atr.one") {
-      if (String(station.now_playing.song.title).includes("-")) {
-        song = {
-          artist: String(station.now_playing.song.title).split("-")[0],
-          title: String(station.now_playing.song.title).split("-")[1],
-          playlist: station.now_playing.playlist,
-          start_at: Number(station.now_playing.played_at),
-          end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration),
-          duration: Number(station.now_playing.duration),
-          artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name)
-        };
-      } else {
-        song = {
-          artist: station.now_playing.song.artist,
-          title: station.now_playing.song.title,
-          playlist: station.now_playing.playlist,
-          start_at: Number(station.now_playing.played_at),
-          end_at: Number(station.now_playing.played_at) + Number(station.now_playing.duration),
-          duration: Number(station.now_playing.duration),
-          artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name)
-        };
-      }
+      song = MAirListService.getCurrentSong();
     } else {
       song = {
         artist: station.now_playing.song.artist,
@@ -155,6 +136,9 @@ export namespace AzuracastService {
 
   export function getSchedule(station: any) {
     return new Promise(async (resolve, reject) => {
+      if (station.live.is_live && station.station.name === "atr.one") {
+        return resolve(MAirListService.getSchedule());
+      }
       const stationQueue = await getStationQueue(station.station.name);
       const schedule: {
         artist: any;
@@ -212,7 +196,7 @@ export namespace AzuracastService {
       }[] = [];
       for (const last of stationHistory.song_history) {
         if (Number(history.length) < 10) {
-          if (station.live.is_live && station.station.name === "atr.one") {
+          if (String(last.streamer).length !== 0 && station.station.name === "atr.one") {
             const songInfo = {
               artist: last.song.artist,
               title: last.song.title,
@@ -220,7 +204,7 @@ export namespace AzuracastService {
               start_at: Number(last.played_at),
               end_at: Number(last.played_at) + Number(last.duration),
               duration: Number(last.duration),
-              artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name)
+              artworks: MAirListService.getArtwork(last.song.artist + " - " + last.song.title)
             };
             history.push(songInfo);
           } else {
