@@ -15,7 +15,7 @@ export namespace AzuracastService {
       axios
         .get(stationUrl, { headers: header })
         .then(async (response) => {
-          let channelInfo: any;
+          let channelInfo: ChannelModel;
           if (channelId === "one") {
             channelInfo = {
               name: response.data.station.name,

@@ -2,13 +2,12 @@ import { SongModel } from "./song.model";
 
 export interface ChannelModel {
     name: string,
-    last_updated: string,
     description: DescriptionModel,
     listeners: number,
-    live: LiveModel,
+    live?: LiveModel,
     song: SongModel,
-    schedule: [SongModel],
-    history: [SongModel],
+    schedule: SongModel[],
+    history: SongModel[],
     stream_urls: StreamsModel
 }
 
