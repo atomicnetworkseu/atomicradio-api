@@ -6,6 +6,11 @@ Canvas.registerFont("./assets/fonts/Montserrat-Regular.ttf", { family: "Montserr
 Canvas.registerFont("./assets/fonts/Montserrat-LightItalic.ttf", { family: "Montserrat-LightItalic" });
 Canvas.registerFont("./assets/fonts/Montserrat-Bold.ttf", { family: "Montserrat-Bold" });
 
+/**
+ * Controller will be rebuilt in the next version!
+ * [+] Get all song information from the cache.
+ * [+] Remove or shorten unnecessary things
+ */
 export namespace CardController {
   export async function getSongCard(req: Request, res: Response) {
     try {
