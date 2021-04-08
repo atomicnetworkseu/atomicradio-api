@@ -1,4 +1,3 @@
-"use strict";
 import dotenv from "dotenv";
 import http from "http";
 import express from "express";

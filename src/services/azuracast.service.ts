@@ -1,5 +1,6 @@
-"use strict";
 import axios from "axios";
+import { ChannelModel } from "../models/channel.model";
+import { SongModel } from "../models/song.model";
 import { ArtworkService } from "./artwork.service";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
@@ -7,7 +8,7 @@ import { MAirListService } from "./mairlist.service";
 import { SocketService } from "./socket.service";
 
 export namespace AzuracastService {
-  export function getStationInfos(channelId: string) {
+  export function getStationInfos(channelId: string): Promise<ChannelModel> {
     const stationUrl = "http://" + process.env.AZURACAST_API + "/api/nowplaying/atr." + channelId;
     return new Promise((resolve, reject) => {
       const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
@@ -52,12 +53,11 @@ export namespace AzuracastService {
             CacheService.set("channel-" + channelId, channelInfo, response.data.now_playing.remaining * 1000);
             SocketService.emitUpdate(channelId, channelInfo);
           }
-          resolve(response.data);
+          resolve(channelInfo);
         })
         .catch((error) => {
           LogService.logError("Error while reading station informations. (" + channelId + ")");
-          console.log(error);
-          resolve({ code: 500, message: "Error while reading station informations." });
+          reject({ code: 500, message: "Error while reading station informations." });
         });
     });
   }
@@ -116,8 +116,8 @@ export namespace AzuracastService {
     });
   }
 
-  export function getCurrentSong(station: any): any {
-    let song = {};
+  export function getCurrentSong(station: any): SongModel {
+    let song: SongModel;
     if (station.live.is_live && station.station.name === "atr.one") {
       song = MAirListService.getCurrentSong();
     } else {
@@ -134,21 +134,13 @@ export namespace AzuracastService {
     return song;
   }
 
-  export function getSchedule(station: any) {
+  export function getSchedule(station: any): Promise<SongModel[]> {
     return new Promise(async (resolve, reject) => {
       if (station.live.is_live && station.station.name === "atr.one") {
         return resolve(MAirListService.getSchedule());
       }
       const stationQueue = await getStationQueue(station.station.name);
-      const schedule: {
-        artist: any;
-        title: any;
-        playlist: any;
-        start_at: number;
-        end_at: number;
-        duration: number;
-        artworks: any;
-      }[] = [];
+      const schedule: SongModel[] = [];
       for (const queue of stationQueue) {
         if (!String(queue.song.artist).includes("jingles")) {
           if (Number(schedule.length) < 5) {
@@ -182,18 +174,10 @@ export namespace AzuracastService {
     });
   }
 
-  export function getHistory(station: any) {
+  export function getHistory(station: any): Promise<SongModel[]> {
     return new Promise(async (resolve, reject) => {
       const stationHistory = await getStationHistory(station.station.name);
-      const history: {
-        artist: any;
-        title: any;
-        playlist: any;
-        start_at: number;
-        end_at: number;
-        duration: number;
-        artworks: any;
-      }[] = [];
+      const history: SongModel[] = [];
       for (const last of stationHistory.song_history) {
         if (Number(history.length) < 10) {
           if (String(last.streamer).length !== 0 && station.station.name === "atr.one") {

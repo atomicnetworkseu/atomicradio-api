@@ -1,4 +1,3 @@
-"use strict";
 import CacheManager from "fast-node-cache";
 import { AzuracastService } from "./azuracast.service";
 import { ListenerService } from "./listener.service";

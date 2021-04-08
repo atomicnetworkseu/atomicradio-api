@@ -1,4 +1,3 @@
-"use strict";
 import socket from "socket.io";
 import { Server } from "ws";
 import { CacheService } from "./cache.service";

@@ -1,11 +1,11 @@
-"use strict";
 import fs from "fs";
 import axios from "axios";
 import sharp from "sharp";
 import { LogService } from "./log.service";
+import { ArtworksModel } from "../models/song.model";
 
 export namespace ArtworkService {
-  export function getErrorArtworks() {
+  export function getErrorArtworks(): ArtworksModel {
     return {
       1000: "https://cdn.atomicradio.eu/artworks/fallback/1000.jpg",
       500: "https://cdn.atomicradio.eu/artworks/fallback/0500.jpg",
@@ -14,7 +14,7 @@ export namespace ArtworkService {
     };
   }
 
-  export function getStreamerArtworks(streamerName: string) {
+  export function getStreamerArtworks(streamerName: string): ArtworksModel {
     const name = String(streamerName).toLowerCase().replace(/ /g, "");
     return {
       1000: `https://cdn.atomicradio.eu/streamer/${name}/1000.jpg`,
@@ -24,7 +24,7 @@ export namespace ArtworkService {
     };
   }
 
-  export function getArtworks(id: string, artwork: string) {
+  export function getArtworks(id: string, artwork: string): ArtworksModel {
     if (artwork !== "https://cdn.atomicradio.eu/artworks/fallback/1000.jpg") {
       if (!fs.existsSync(`./assets/artworks/${id}`)) {
         fs.mkdirSync(`./assets/artworks/${id}`);

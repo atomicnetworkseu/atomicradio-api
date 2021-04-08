@@ -4,6 +4,7 @@ import CacheManager from "fast-node-cache";
 import { ArtworkService } from "./artwork.service";
 import { LogService } from "./log.service";
 import { AzuracastService } from "./azuracast.service";
+import { SongModel } from "../models/song.model";
 
 const cache = new CacheManager({
     memoryOnly: true,
@@ -24,7 +25,7 @@ export namespace MAirListService {
         liveData.song.artworks = MAirListService.saveArtworks(data.artist + " - " + data.title, data.artwork);
 
         const schedule = JSON.parse(data.schedule);
-        for (let item of schedule) {
+        for (const item of schedule) {
             liveData.schedule.push({
                 artist: item.artist,
                 title: item.title,
@@ -112,7 +113,7 @@ export namespace MAirListService {
         return cache;
     }
 
-    export function getCurrentSong() {
+    export function getCurrentSong(): SongModel {
         const metadata = cache.get("live_metadata");
         if(metadata === undefined) {
             return {
@@ -136,7 +137,7 @@ export namespace MAirListService {
         };
     }
 
-    export function getSchedule() {
+    export function getSchedule(): SongModel[] {
         const metadata = cache.get("live_metadata");
         if(metadata === undefined) {
             return [];
@@ -145,11 +146,10 @@ export namespace MAirListService {
     }
 
     export function generateArtworkId() {
-        var result = "";
-        var characters = "abcdefghijkmnoprstuw0123456789";
-        var charactersLength = characters.length;
-        for (var i = 0; i < 32; i++) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        let result = "";
+        const characters = "abcdefghijkmnoprstuw0123456789";
+        for (let i = 0; i < 32; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return result;
     }

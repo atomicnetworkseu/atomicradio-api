@@ -1,4 +1,3 @@
-"use strict";
 import moment from "moment";
 
 export namespace LogService {

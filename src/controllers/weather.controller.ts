@@ -1,9 +1,9 @@
-"use strict";
 import { Request, Response } from "express";
 import axios from "axios";
 import anonymize from "ip-anonymize";
 import { CacheService } from "../services/cache.service";
 import { LogService } from "../services/log.service";
+import { WeatherModel } from "../models/weather.model";
 
 export namespace WeatherController {
   export async function getWeatherData(req: Request, res: Response) {
@@ -28,7 +28,7 @@ export namespace WeatherController {
     }
   }
 
-  function requestWeatherDataByCity(city: string, country: string): Promise<any> {
+  function requestWeatherDataByCity(city: string, country: string): Promise<WeatherModel> {
     return new Promise((resolve, reject) => {
       axios
         .get(
@@ -48,13 +48,12 @@ export namespace WeatherController {
         })
         .catch((error) => {
           LogService.logError("Error while requesting weather data.");
-          console.log(error);
           reject();
         });
     });
   }
 
-  function requestWeatherData(lat: any, lon: any): Promise<any> {
+  function requestWeatherData(lat: any, lon: any): Promise<WeatherModel> {
     return new Promise((resolve, reject) => {
       axios
         .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=en&appid=` + process.env.OPENWEATHER_TOKEN)
@@ -71,12 +70,14 @@ export namespace WeatherController {
         })
         .catch((error) => {
           LogService.logError("Error while requesting weather data.");
-          console.log(error);
           reject();
         });
     });
   }
 
+  /**
+   * Switching to the offical IPInfo NodeJS Client Library
+   */
   function requestIpInformations(ip: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (CacheService.getIpCache().get(ip) !== undefined) {
@@ -92,7 +93,6 @@ export namespace WeatherController {
         })
         .catch((error) => {
           LogService.logError("Error while requesting ip data. (" + anonymize(ip) + ")");
-          console.log(error);
           reject();
         });
     });

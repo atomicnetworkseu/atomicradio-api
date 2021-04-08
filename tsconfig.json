@@ -8,9 +8,10 @@
     "noUnusedLocals": true,
     "noImplicitAny": true,
     "noUnusedParameters": false,
-    "typeRoots": ["@types"],
+    "typeRoots": ["types"],
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "build"
+    "outDir": "build",
+    "alwaysStrict": true
   }
 }

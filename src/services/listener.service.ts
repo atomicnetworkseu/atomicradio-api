@@ -1,4 +1,3 @@
-"use strict";
 import axios from "axios";
 import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
@@ -23,7 +22,7 @@ export namespace ListenerService {
   export function getTeamSpeak(): Promise<number> {
     return new Promise(async (resolve, reject) => {
       let count = 0;
-      for (let botId of CacheService.getTeamSpeakCache().keys()) {
+      for (const botId of CacheService.getTeamSpeakCache().keys()) {
         const bot = CacheService.getTeamSpeakCache().get(botId);
         if (!CacheService.getTeamSpeakCache().isExpired(botId)) {
           count += Number(bot.value);
