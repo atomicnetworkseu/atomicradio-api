@@ -12,7 +12,9 @@ export namespace WeatherController {
         const weather = await requestWeatherData(req.query.lat, req.query.lon);
         res.status(200).json(weather);
       } else {
-        const ipInfo = await requestIpInformations(req.ip);
+        const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
+        const ip = String(xForwardedFor).split(",")[0].trim();
+        const ipInfo = await requestIpInformations(ip);
         const country = ipInfo.country;
         const city = ipInfo.city;
         if (city === undefined || city === null || country === undefined || country === null) {

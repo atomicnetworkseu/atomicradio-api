@@ -45,14 +45,8 @@ morgan.token("host", (req: express.Request, res: express.Response) => {
 });
 
 morgan.token("ip", (req: express.Request, res: express.Response) => {
-  const xForwardedFor = String(req.headers["x-forwarded-for"] || "").replace(/:\d+$/, "");
-  let ip = xForwardedFor || req.connection.remoteAddress;
-  if (ip.includes("::ffff:")) {
-    ip = ip.split(":").reverse()[0];
-  }
-  if (ip.includes(",")) {
-    ip = ip.split(", ").reverse()[0];
-  }
+  const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
+  const ip = String(xForwardedFor).split(",")[0].trim();
   return anonymize(ip);
 });
 
