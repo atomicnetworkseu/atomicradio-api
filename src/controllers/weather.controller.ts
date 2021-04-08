@@ -77,9 +77,6 @@ export namespace WeatherController {
     });
   }
 
-  /**
-   * Switching to the offical IPInfo NodeJS Client Library
-   */
   function requestIpInformations(ip: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (CacheService.getIpCache().get(ip) !== undefined) {

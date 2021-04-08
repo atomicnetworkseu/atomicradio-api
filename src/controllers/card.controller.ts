@@ -6,11 +6,6 @@ Canvas.registerFont("./assets/fonts/Montserrat-Regular.ttf", { family: "Montserr
 Canvas.registerFont("./assets/fonts/Montserrat-LightItalic.ttf", { family: "Montserrat-LightItalic" });
 Canvas.registerFont("./assets/fonts/Montserrat-Bold.ttf", { family: "Montserrat-Bold" });
 
-/**
- * Controller will be rebuilt in the next version!
- * [+] Get all song information from the cache.
- * [+] Remove or shorten unnecessary things
- */
 export namespace CardController {
   export async function getSongCard(req: Request, res: Response) {
     try {
@@ -190,20 +185,4 @@ export namespace CardController {
     });
     ctx.restore();
   }
-
-  /*function fillMixedTextRight(ctx: any, args: any, x: number, y: number) {
-        let defaultFillStyle = ctx.fillStyle;
-        let defaultFont = ctx.font;
-
-        ctx.textAlign = "end";
-        ctx.save();
-        args.reverse();
-        args.forEach((arg: any) => {
-            ctx.fillStyle = arg.fillStyle || defaultFillStyle;
-            ctx.font = arg.font || defaultFont;
-            ctx.fillText(arg.text, x, y);
-            x -= ctx.measureText(arg.text).width;
-        });
-        ctx.restore();
-    };*/
 }
