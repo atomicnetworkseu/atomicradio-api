@@ -18,8 +18,8 @@ export namespace MAirListService {
             schedule: []
         };
 
-        liveData.song.artist = data.artist;
-        liveData.song.title = data.title;
+        liveData.song.artist = String(data.artist).toUpperCase();
+        liveData.song.title = String(data.title).toUpperCase();
         liveData.song.start_at = MAirListService.convertStartToSeconds(data.start_at);
         liveData.song.duration = MAirListService.convertDurationToSeconds(data.duration);
         liveData.song.artworks = MAirListService.saveArtworks(data.artist + " - " + data.title, data.artwork);
@@ -27,8 +27,8 @@ export namespace MAirListService {
         const schedule = JSON.parse(data.schedule);
         for (const item of schedule) {
             liveData.schedule.push({
-                artist: item.artist,
-                title: item.title,
+                artist: String(item.artist).toUpperCase(),
+                title: String(item.title).toUpperCase(),
                 playlist: "",
                 start_at: MAirListService.convertStartToSeconds(item.start_at),
                 end_at: Number(MAirListService.convertStartToSeconds(item.start_at)) + Number(MAirListService.convertDurationToSeconds(item.duration)),
