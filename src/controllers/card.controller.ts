@@ -21,7 +21,6 @@ export namespace CardController {
       res.set("Content-Type", "image/png");
       res.send(card);
     } catch (err) {
-      console.log("ERROR WHILE CREATING SONG CARD");
       res.status(500).json({ code: 500, message: "Song card could not be loaded. Please try again later." });
     }
   }
