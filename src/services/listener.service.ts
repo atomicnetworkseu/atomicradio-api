@@ -13,7 +13,6 @@ export namespace ListenerService {
         })
         .catch((error) => {
           LogService.logError("Error while requesting discord listener data.");
-          console.log(error);
           reject();
         });
     });
@@ -40,7 +39,6 @@ export namespace ListenerService {
       teamspeak = await getTeamSpeak();
     } catch (err) {
       LogService.logError("Error while requesting listener data.");
-      console.log(err);
     }
     if (
       CacheService.get("channel-one") === undefined ||

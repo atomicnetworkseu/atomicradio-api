@@ -93,7 +93,6 @@ export namespace AzuracastService {
         })
         .catch((error) => {
           LogService.logError("Error while reading station informations. (" + channelId + ")");
-          console.log(error);
           resolve([]);
         });
     });
@@ -110,7 +109,6 @@ export namespace AzuracastService {
         })
         .catch((error) => {
           LogService.logError("Error while reading station informations. (" + channelId + ")");
-          console.log(error);
           resolve({});
         });
     });

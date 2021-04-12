@@ -42,7 +42,6 @@ export namespace ArtworkService {
                 .toFile(`./assets/artworks/${id}/0500.jpg`)
                 .catch((error) => {
                   LogService.logError("The size of one artwork could not be resized to 500x500. (" + id + ")");
-                  console.log(error);
                 });
               sharp(`./assets/artworks/${id}/1000.jpg`)
                 .resize(250, 250)
@@ -50,7 +49,6 @@ export namespace ArtworkService {
                 .toFile(`./assets/artworks/${id}/0250.jpg`)
                 .catch((error) => {
                   LogService.logError("The size of one artwork could not be resized to 250x250. (" + id + ")");
-                  console.log(error);
                 });
               sharp(`./assets/artworks/${id}/1000.jpg`)
                 .resize(100, 100)
@@ -58,7 +56,6 @@ export namespace ArtworkService {
                 .toFile(`./assets/artworks/${id}/0100.jpg`)
                 .catch((error) => {
                   LogService.logError("The size of one artwork could not be resized to 100x100. (" + id + ")");
-                  console.log(error);
                 });
             });
             writer.on("error", () => {
@@ -67,7 +64,6 @@ export namespace ArtworkService {
           })
           .catch((error) => {
             LogService.logError("Artwork could not be downloaded. (" + id + ")");
-            console.log(error);
           });
       }
 
