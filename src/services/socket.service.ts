@@ -20,7 +20,7 @@ export namespace SocketService {
       });
     });
 
-    ws = new Server({port: 3010});
+    ws = new Server({port: 3011});
     ws.on("connection", (webSocket: WebSocket) => {
       const id = makeWebSocketId();
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
