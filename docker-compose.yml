@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+    atomicradio-api:
+        build: atomicradio-api:latest
+        container_name: atomicradio-api
+        volumes:
+            - ./assets:/opt/src/assets
+        ports:
+            - "3010:3010"
+            - "3011:3011"
