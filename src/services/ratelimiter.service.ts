@@ -21,7 +21,7 @@ export namespace RateLimiterService {
             .consume(req.ip, 1)
             .then((value) => {
                 res.set({
-                    "X-RateLimit-Limit": 250,
+                    "X-RateLimit-Limit": 100,
                     "X-RateLimit-Remaining": value.remainingPoints,
                     "X-RateLimit-Reset": new Date(Date.now() + value.msBeforeNext),
                     "X-RateLimit-Retry": value.msBeforeNext / 1000
@@ -30,7 +30,7 @@ export namespace RateLimiterService {
             })
             .catch((error) => {
                 res.set({
-                    "X-RateLimit-Limit": 250,
+                    "X-RateLimit-Limit": 100,
                     "X-RateLimit-Remaining": error.remainingPoints,
                     "X-RateLimit-Reset": new Date(Date.now() + error.msBeforeNext),
                     "X-RateLimit-Retry": error.msBeforeNext / 1000
@@ -44,7 +44,7 @@ export namespace RateLimiterService {
             .consume(req.ip, 1)
             .then((value) => {
                 res.set({
-                    "X-RateLimit-Limit": 100,
+                    "X-RateLimit-Limit": 50,
                     "X-RateLimit-Remaining": value.remainingPoints,
                     "X-RateLimit-Reset": new Date(Date.now() + value.msBeforeNext),
                     "X-RateLimit-Retry": value.msBeforeNext / 1000
@@ -53,7 +53,7 @@ export namespace RateLimiterService {
             })
             .catch((error) => {
                 res.set({
-                    "X-RateLimit-Limit": 100,
+                    "X-RateLimit-Limit": 50,
                     "X-RateLimit-Remaining": error.remainingPoints,
                     "X-RateLimit-Reset": new Date(Date.now() + error.msBeforeNext),
                     "X-RateLimit-Retry": error.msBeforeNext / 1000
