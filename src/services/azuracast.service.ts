@@ -15,49 +15,63 @@ export namespace AzuracastService {
       axios
         .get(stationUrl, { headers: header })
         .then(async (response) => {
-          let channelInfo: ChannelModel;
-          if (channelId === "one") {
-            channelInfo = {
-              name: response.data.station.name,
-              description: getStationDescription(response.data.station.name),
-              listeners: response.data.listeners.current,
-              live: { is_live: response.data.live.is_live, streamer: response.data.live.streamer_name },
-              song: getCurrentSong(response.data),
-              schedule: await getSchedule(response.data),
-              history: await getHistory(response.data),
-              stream_urls: {
-                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
-                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
-                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
+
+          getSchedule(response.data).then((schedule) => {
+            getHistory(response.data).then((history) => {
+
+              let channelInfo: ChannelModel;
+              if (channelId === "one") {
+                channelInfo = {
+                  name: response.data.station.name,
+                  description: getStationDescription(response.data.station.name),
+                  listeners: response.data.listeners.current,
+                  live: { is_live: response.data.live.is_live, streamer: response.data.live.streamer_name },
+                  song: getCurrentSong(response.data),
+                  schedule,
+                  history,
+                  stream_urls: {
+                    highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
+                    middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
+                    lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
+                  }
+                };
+              } else {
+                channelInfo = {
+                  name: response.data.station.name,
+                  description: getStationDescription(response.data.station.name),
+                  listeners: response.data.listeners.current,
+                  song: getCurrentSong(response.data),
+                  schedule,
+                  history,
+                  stream_urls: {
+                    highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
+                    middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
+                    lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
+                  }
+                };
               }
-            };
-          } else {
-            channelInfo = {
-              name: response.data.station.name,
-              description: getStationDescription(response.data.station.name),
-              listeners: response.data.listeners.current,
-              song: getCurrentSong(response.data),
-              schedule: await getSchedule(response.data),
-              history: await getHistory(response.data),
-              stream_urls: {
-                highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
-                middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
-                lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
+              if (response.data.live.is_live && channelInfo.name === "atr.one") {
+                CacheService.set("channel-" + channelId, channelInfo, 1000);
+                SocketService.emitUpdate(channelId, channelInfo);
+              } else {
+                CacheService.set("channel-" + channelId, channelInfo, response.data.now_playing.remaining * 1000);
+                SocketService.emitUpdate(channelId, channelInfo);
               }
-            };
-          }
-          if (response.data.live.is_live && channelInfo.name === "atr.one") {
-            CacheService.set("channel-" + channelId, channelInfo, 1000);
-            SocketService.emitUpdate(channelId, channelInfo);
-          } else {
-            CacheService.set("channel-" + channelId, channelInfo, response.data.now_playing.remaining * 1000);
-            SocketService.emitUpdate(channelId, channelInfo);
-          }
-          resolve(channelInfo);
+              resolve(channelInfo);
+
+            }).catch(() => {
+              CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+              LogService.logError("Error while reading history informations. (" + channelId + ")");
+            });
+          }).catch(() => {
+            CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+            LogService.logError("Error while reading schedule informations. (" + channelId + ")");
+          });
+
         })
-        .catch((error) => {
+        .catch(() => {
+          CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
           LogService.logError("Error while reading station informations. (" + channelId + ")");
-          reject({ code: 500, message: "Error while reading station informations." });
         });
     });
   }
@@ -90,10 +104,6 @@ export namespace AzuracastService {
         .get(stationUrl, { headers: header })
         .then((response) => {
           resolve(response.data);
-        })
-        .catch((error) => {
-          LogService.logError("Error while reading station informations. (" + channelId + ")");
-          resolve([]);
         });
     });
   }
@@ -106,10 +116,6 @@ export namespace AzuracastService {
         .get(stationUrl, { headers: header })
         .then((response) => {
           resolve(response.data);
-        })
-        .catch((error) => {
-          LogService.logError("Error while reading station informations. (" + channelId + ")");
-          resolve({});
         });
     });
   }
@@ -137,73 +143,75 @@ export namespace AzuracastService {
       if (station.live.is_live && station.station.name === "atr.one") {
         return resolve(MAirListService.getSchedule());
       }
-      const stationQueue = await getStationQueue(station.station.name);
-      const schedule: SongModel[] = [];
-      for (const queue of stationQueue) {
-        if (!String(queue.song.artist).includes("jingles")) {
-          if (Number(schedule.length) < 5) {
-            if (station.live.is_live && station.station.name === "atr.one") {
-              const songInfo = {
-                artist: queue.song.artist,
-                title: queue.song.title,
-                playlist: queue.playlist,
-                start_at: Number(queue.cued_at),
-                end_at: Number(queue.cued_at) + Number(queue.duration),
-                duration: Number(queue.duration),
-                artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name)
-              };
-              schedule.push(songInfo);
-            } else {
-              const songInfo = {
-                artist: queue.song.artist,
-                title: queue.song.title,
-                playlist: queue.playlist,
-                start_at: Number(queue.cued_at),
-                end_at: Number(queue.cued_at) + Number(queue.duration),
-                duration: Number(queue.duration),
-                artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art)
-              };
-              schedule.push(songInfo);
+      getStationQueue(station.station.name).then((result) => {
+        const schedule: SongModel[] = [];
+        for (const queue of result) {
+          if (!String(queue.song.artist).includes("jingles")) {
+            if (Number(schedule.length) < 5) {
+              if (station.live.is_live && station.station.name === "atr.one") {
+                const songInfo = {
+                  artist: queue.song.artist,
+                  title: queue.song.title,
+                  playlist: queue.playlist,
+                  start_at: Number(queue.cued_at),
+                  end_at: Number(queue.cued_at) + Number(queue.duration),
+                  duration: Number(queue.duration),
+                  artworks: ArtworkService.getStreamerArtworks(station.live.streamer_name)
+                };
+                schedule.push(songInfo);
+              } else {
+                const songInfo = {
+                  artist: queue.song.artist,
+                  title: queue.song.title,
+                  playlist: queue.playlist,
+                  start_at: Number(queue.cued_at),
+                  end_at: Number(queue.cued_at) + Number(queue.duration),
+                  duration: Number(queue.duration),
+                  artworks: ArtworkService.getArtworks(queue.song.id, queue.song.art)
+                };
+                schedule.push(songInfo);
+              }
             }
           }
         }
-      }
-      resolve(schedule);
+        resolve(schedule);
+      });
     });
   }
 
   export function getHistory(station: any): Promise<SongModel[]> {
     return new Promise(async (resolve, reject) => {
-      const stationHistory = await getStationHistory(station.station.name);
-      const history: SongModel[] = [];
-      for (const last of stationHistory.song_history) {
-        if (Number(history.length) < 10) {
-          if (String(last.streamer).length !== 0 && station.station.name === "atr.one") {
-            const songInfo = {
-              artist: last.song.artist,
-              title: last.song.title,
-              playlist: last.playlist,
-              start_at: Number(last.played_at),
-              end_at: Number(last.played_at) + Number(last.duration),
-              duration: Number(last.duration),
-              artworks: MAirListService.getArtwork(last.song.artist + " - " + last.song.title)
-            };
-            history.push(songInfo);
-          } else {
-            const songInfo = {
-              artist: last.song.artist,
-              title: last.song.title,
-              playlist: last.playlist,
-              start_at: Number(last.played_at),
-              end_at: Number(last.played_at) + Number(last.duration),
-              duration: Number(last.duration),
-              artworks: ArtworkService.getArtworks(last.song.id, last.song.art)
-            };
-            history.push(songInfo);
+      getStationHistory(station.station.name).then((result) => {
+        const history: SongModel[] = [];
+        for (const last of result.song_history) {
+          if (Number(history.length) < 10) {
+            if (String(last.streamer).length !== 0 && station.station.name === "atr.one") {
+              const songInfo = {
+                artist: last.song.artist,
+                title: last.song.title,
+                playlist: last.playlist,
+                start_at: Number(last.played_at),
+                end_at: Number(last.played_at) + Number(last.duration),
+                duration: Number(last.duration),
+                artworks: MAirListService.getArtwork(last.song.artist + " - " + last.song.title)
+              };
+              history.push(songInfo);
+            } else {
+              const songInfo = {
+                artist: last.song.artist,
+                title: last.song.title,
+                playlist: last.playlist,
+                start_at: Number(last.played_at),
+                end_at: Number(last.played_at) + Number(last.duration),
+                duration: Number(last.duration),
+                artworks: ArtworkService.getArtworks(last.song.id, last.song.art)
+              };
+              history.push(songInfo);
+            }
           }
         }
-      }
-      resolve(history);
+        resolve(history);
+      });
     });
   }
 }

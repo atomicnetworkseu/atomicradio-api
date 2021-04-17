@@ -8,6 +8,10 @@ import { ChannelModel } from "../models/channel.model";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
+    if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined ||
+    CacheService.get("channel-dance").code !== undefined || CacheService.get("channel-trap").code !== undefined) {
+      return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+    }
     const channelOne = CacheService.get("channel-one") as ChannelModel;
     const channelDance = CacheService.get("channel-dance") as ChannelModel;
     const channelTrap = CacheService.get("channel-trap") as ChannelModel;
@@ -30,12 +34,21 @@ export namespace ChannelController {
 
     switch (channelId) {
       case "one":
+        if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+          return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+        }
         const channelOne = CacheService.get("channel-one") as ChannelModel;
         return res.status(200).json(channelOne);
       case "dance":
+        if(CacheService.get("channel-dance") === undefined || CacheService.get("channel-dance").code !== undefined) {
+          return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+        }
         const channelDance = CacheService.get("channel-dance") as ChannelModel;
         return res.status(200).json(channelDance);
       case "trap":
+        if(CacheService.get("channel-trap") === undefined || CacheService.get("channel-trap").code !== undefined) {
+          return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+        }
         const channelTrap = CacheService.get("channel-trap") as ChannelModel;
         return res.status(200).json(channelTrap);
       default:
@@ -52,6 +65,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.song);
     } else {
@@ -68,6 +84,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.description);
     } else {
@@ -84,6 +103,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.schedule);
     } else {
@@ -100,6 +122,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.history);
     } else {
@@ -116,6 +141,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json({ listeners: channel.listeners });
     } else {
@@ -125,6 +153,9 @@ export namespace ChannelController {
 
   export function getChannelLive(req: Request, res: Response) {
     if (!req.params.id) {
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-one") as ChannelModel;
       return res.status(200).json(channel.live);
     }
@@ -137,6 +168,9 @@ export namespace ChannelController {
     }
 
     if (channelId === "one") {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+      }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.live);
     } else if (channelId === "dance" || channelId === "trap") {
@@ -156,6 +190,9 @@ export namespace ChannelController {
       const jtwToken = base64Token.split(":")[1];
       try {
         const token: any = JWT.verify(jtwToken, process.env.STREAMER_TOKEN);
+        if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+          return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+        }
         const channel = CacheService.get("channel-one") as ChannelModel;
         if(channel.live.is_live) {
           if(token.name !== channel.live.streamer) {
