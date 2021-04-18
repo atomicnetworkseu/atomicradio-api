@@ -26,7 +26,7 @@ export namespace ArtworkService {
 
   export function getArtworks(id: string, artwork: string): ArtworksModel {
     if (artwork !== "https://cdn.atomicradio.eu/artworks/fallback/1000.jpg") {
-      if (!fs.existsSync(`./assets/artworks/${id}`)) {
+      if (!fs.existsSync(`./assets/artworks/${id}/1000.jpg`)) {
         fs.mkdirSync(`./assets/artworks/${id}`);
 
         axios
