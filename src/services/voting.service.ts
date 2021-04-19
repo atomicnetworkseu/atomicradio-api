@@ -32,4 +32,14 @@ export namespace VotingService {
         });
     }
 
+    export function addVote(id: number) {
+        const voting = CacheService.get("voting") as VotingModel;
+        const song = voting.items.find(x => x.id === id);
+        if(voting === undefined || song === undefined) {
+            return undefined;
+        }
+        song.votes += 1;
+        return song;
+    }
+
 }
