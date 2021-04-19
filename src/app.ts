@@ -12,11 +12,13 @@ import promMiddleware from "express-prometheus-middleware";
 import channel from "./routers/channel.router";
 import weather from "./routers/weather.router";
 import card from "./routers/card.router";
+import voting from "./routers/voting.router";
 import { AzuracastService } from "./services/azuracast.service";
 import { ListenerService } from "./services/listener.service";
 import { LogService } from "./services/log.service";
 import { SocketService } from "./services/socket.service";
 import { RateLimiterService } from "./services/ratelimiter.service";
+import { VotingService } from "./services/voting.service";
 
 const app = express();
 const httpServer = new http.Server(app);
@@ -27,6 +29,8 @@ AzuracastService.getStationInfos("one");
 AzuracastService.getStationInfos("dance");
 AzuracastService.getStationInfos("trap");
 ListenerService.requestListener();
+
+VotingService.startVoting();
 
 morgan.token("host", (req: express.Request, res: express.Response) => {
   return req.hostname;
@@ -60,6 +64,7 @@ app.use("/assets", express.static("./assets/"));
 app.use("/channels", RateLimiterService.globalRateLimiter, channel);
 app.use("/weather", RateLimiterService.weatherRateLimiter, weather);
 app.use("/cards", RateLimiterService.globalRateLimiter, card);
+app.use("/voting", RateLimiterService.globalRateLimiter, voting);
 
 app.use("*", (req, res: any, next: () => void) => {
   const randomMessage = [

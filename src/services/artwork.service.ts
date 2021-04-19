@@ -27,7 +27,11 @@ export namespace ArtworkService {
   export function getArtworks(id: string, artwork: string): ArtworksModel {
     if (artwork !== "https://cdn.atomicradio.eu/artworks/fallback/1000.jpg") {
       if (!fs.existsSync(`./assets/artworks/${id}/1000.jpg`)) {
-        fs.mkdirSync(`./assets/artworks/${id}`);
+        try {
+          fs.mkdirSync(`./assets/artworks/${id}`);
+        } catch(err) {
+          LogService.logError(`Directory already exists. The artworks will be downloaded again. (${id})`);
+        }
 
         axios
           .get(artwork, { responseType: "stream" })

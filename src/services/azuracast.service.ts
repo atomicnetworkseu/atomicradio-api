@@ -214,4 +214,17 @@ export namespace AzuracastService {
       });
     });
   }
+
+  export function getMedia(): Promise<any[]> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/files/list?currentDirectory=one";
+    return new Promise((resolve, reject) => {
+      const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+      axios
+        .get(stationUrl, { headers: header })
+        .then((response) => {
+          resolve(response.data);
+        });
+    });
+  }
+
 }
