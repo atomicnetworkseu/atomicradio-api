@@ -15,3 +15,8 @@ export interface VoteSongModel {
     preview_url: string,
     artworks: ArtworksModel
 }
+
+export interface VoteModel {
+    id: number,
+    ip: string
+}

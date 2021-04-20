@@ -32,7 +32,12 @@ export namespace VotingController {
             return res.status(404).json({ code: 404, message: "There are currently no songs in the voting. Try again later." });
         }
 
-        const song = VotingService.addVote(id);
+        const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
+        const ip = String(xForwardedFor).split(",")[0].trim();
+        if(VotingService.hasVoted(ip, id)) {
+            return res.status(500).json({ code: 500, message: "You have already voted for this song." });
+        }
+        const song = VotingService.addVote(ip, id);
         if(song === undefined) {
             return res.status(404).json({ code: 404, message: "The song with the given id was not found." });
         }

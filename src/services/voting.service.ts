@@ -1,4 +1,4 @@
-import { VotingModel } from "../models/voting.model";
+import { VoteModel, VotingModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
 import { CacheService } from "./cache.service";
@@ -32,15 +32,30 @@ export namespace VotingService {
         });
     }
 
-    export function addVote(id: number) {
+    export function addVote(ip: string, id: number) {
         const voting = CacheService.get("voting") as VotingModel;
         const song = voting.items.find(x => x.id === id);
         if(voting === undefined || song === undefined) {
             return undefined;
         }
+
+        const votes = CacheService.get("votes") as VoteModel[];
+        if(votes === undefined) {
+            CacheService.set("votes", [{ id, ip }]);
+        } else {
+            votes.push({ id, ip });
+        }
         song.votes += 1;
         voting.items.sort((a, b) => {return b.votes-a.votes});
         return song;
+    }
+
+    export function hasVoted(ip: string, id: number) {
+        const votes = CacheService.get("votes") as VoteModel[];
+        if(votes === undefined) return false;
+        const vote = votes.find(x => x.ip === ip && x.id === id);
+        if(vote === undefined) return false;
+        return true;
     }
 
 }
