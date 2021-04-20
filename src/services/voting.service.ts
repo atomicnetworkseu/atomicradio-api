@@ -39,6 +39,7 @@ export namespace VotingService {
             return undefined;
         }
         song.votes += 1;
+        voting.items.sort((a, b) => {return b.votes-a.votes});
         return song;
     }
 
