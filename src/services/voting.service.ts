@@ -9,7 +9,7 @@ export namespace VotingService {
     export function startVoting() {
         AzuracastService.getMedia().then((mediaArray) => {
             const result = [];
-            for(let i = 1; i < 11; i++) {
+            for(let i = 1; i < 31; i++) {
                 const media = mediaArray[Math.floor(Math.random()*mediaArray.length)];
                 result.push({
                     id: i,
