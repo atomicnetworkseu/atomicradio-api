@@ -14,6 +14,17 @@ export namespace VotingController {
         if(voting.items.length === 0) {
             return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
         }
+
+        const items = voting.items.slice();
+        const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
+        const ip = String(xForwardedFor).split(",")[0].trim();
+        for(const item of items) {
+            if(VotingService.hasVoted(ip, item.id)) {
+                item.voted = true;
+            } else {
+                item.voted = false;
+            }
+        }
         return res.status(200).json(voting);
     }
 

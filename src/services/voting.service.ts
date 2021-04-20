@@ -17,6 +17,7 @@ export namespace VotingService {
                     title: media.media.title,
                     playlist: media.playlists[0].name,
                     votes: 0,
+                    voted: null,
                     preview_url: "",
                     artworks: ArtworkService.getArtworks(media.media.id, "http://" + process.env.AZURACAST_API + media.media.art)
                 });

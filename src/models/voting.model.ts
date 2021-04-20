@@ -12,6 +12,7 @@ export interface VoteSongModel {
     title: string,
     playlist: string,
     votes: number,
+    voted: boolean,
     preview_url: string,
     artworks: ArtworksModel
 }
