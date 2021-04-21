@@ -2,12 +2,14 @@ import { ArtworksModel } from "./song.model";
 
 export interface VotingModel {
     items: VoteSongModel[],
+    completed?: boolean,
     created_at: number,
     ending_at: number
 }
 
 export interface VoteSongModel {
-    id: number
+    id: number,
+    unique_id: string,
     artist: string,
     title: string,
     playlist: string,

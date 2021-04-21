@@ -13,6 +13,7 @@ export namespace VotingService {
                 const media = mediaArray[Math.floor(Math.random()*mediaArray.length)];
                 result.push({
                     id: i,
+                    unique_id: String(media.media.links.waveform).split("waveform/")[1].split("-")[0],
                     artist: media.media.artist,
                     title: media.media.title,
                     playlist: media.playlists[0].name,
@@ -59,6 +60,26 @@ export namespace VotingService {
         const vote = votes.find(x => x.ip === ip && x.id === id);
         if(vote === undefined) return false;
         return true;
+    }
+
+    export function completeVoting() {
+        const voting = CacheService.get("voting") as VotingModel;
+        if(voting === undefined) return;
+        if(voting.completed !== undefined) return;
+        voting.completed = true;
+        AzuracastService.deleteQueue().then(() => {
+            for(let i = 0; i < 5; i++) {
+                const item = voting.items[5-i];
+                console.log(item);
+                setTimeout(() => {
+                    AzuracastService.requestSong("54c3eb6d0c2a42409b833f0b").then(() => {
+                        AzuracastService.requestSong(item.unique_id);
+                    }).catch(() => {
+                        AzuracastService.requestSong(item.unique_id);
+                    });
+                }, 5000*i);
+            }
+        });
     }
 
 }

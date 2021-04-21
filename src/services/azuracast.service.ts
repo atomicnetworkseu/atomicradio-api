@@ -227,4 +227,37 @@ export namespace AzuracastService {
     });
   }
 
+  export function deleteQueue(): Promise<boolean> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/queue";
+    const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+    return new Promise((resolve, reject) => {
+      axios.get(stationUrl, { headers: header })
+      .then((response) => {
+        const body = response.data as any[];
+        for(const item of body) {
+          axios.delete(item.links.self, { headers: header })
+            .catch((err) => {
+              console.log(err);
+              LogService.logError("Error while deleting station queue.");
+            });
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  export function requestSong(unique_id: string): Promise<any> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/request/" + unique_id;
+    const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+    return new Promise((resolve, reject) => {
+      axios.get(stationUrl, { headers: header }).then(() => {
+        console.log(unique_id);
+        resolve(unique_id);
+        }).catch((err) => {
+          console.log(err);
+          LogService.logError("Error while requesting voted song.");
+        });
+    });
+  }
+
 }
