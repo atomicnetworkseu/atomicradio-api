@@ -1,4 +1,4 @@
-import { VoteModel, VotingModel } from "../models/voting.model";
+import { VoteModel, VotingModel, VoteSongModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
 import { CacheService } from "./cache.service";
@@ -8,9 +8,11 @@ export namespace VotingService {
 
     export function startVoting() {
         AzuracastService.getMedia().then((mediaArray) => {
-            const result = [];
+            const result: VoteSongModel[] = [];
             for(let i = 1; i < 31; i++) {
-                const media = mediaArray[Math.floor(Math.random()*mediaArray.length)];
+                const media_id = Math.floor(Math.random()*mediaArray.length);
+                const media = mediaArray[media_id];
+                mediaArray.splice(media_id, 1);
                 result.push({
                     id: i,
                     unique_id: String(media.media.links.waveform).split("waveform/")[1].split("-")[0],
