@@ -246,16 +246,15 @@ export namespace AzuracastService {
     });
   }
 
-  export function requestSong(unique_id: string): Promise<any> {
-    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/request/" + unique_id;
+  export function requestSongs(songs: string[]): Promise<boolean> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/files/batch";
     const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
     return new Promise((resolve, reject) => {
-      axios.get(stationUrl, { headers: header }).then(() => {
-        console.log(unique_id);
-        resolve(unique_id);
+      axios.put(stationUrl, {do: "queue", files: songs}, { headers: header }).then(() => {
+        resolve(true);
         }).catch((err) => {
           console.log(err);
-          LogService.logError("Error while requesting voted song.");
+          LogService.logError("Error while requesting voted songs.");
         });
     });
   }

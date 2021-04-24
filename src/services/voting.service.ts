@@ -21,6 +21,7 @@ export namespace VotingService {
                     artist: media.media.artist,
                     title: media.media.title,
                     type: "NEWCOMER",
+                    filePath: media.path,
                     votes: 0,
                     voted: null,
                     preview_url: "",
@@ -37,6 +38,7 @@ export namespace VotingService {
                     artist: media.media.artist,
                     title: media.media.title,
                     type: "CHARTS",
+                    filePath: media.path,
                     votes: 0,
                     voted: null,
                     preview_url: "",
@@ -48,7 +50,8 @@ export namespace VotingService {
             const voting: VotingModel = {
                 items: result,
                 created_at: new Date().getTime(),
-                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 19).getTime()
+                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 19).getTime(),
+                completed: false
             };
             CacheService.set("voting", voting, new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime()-new Date().getTime());
         }).catch(() => {
@@ -85,24 +88,13 @@ export namespace VotingService {
     export function completeVoting() {
         const voting = CacheService.get("voting") as VotingModel;
         if(voting === undefined) return;
-        if(voting.completed !== undefined) return;
+        if(voting.completed) return;
         voting.completed = true;
-        const items = voting.items.slice(0, 5).reverse();
-        const jingles = ["54c3eb6d0c2a42409b833f0b", "a77b6935dec5b42fcb8d639d", "0c8611651dbb1b4252d60b8e", "bc069632c877005aa6f2d565", "f0a0066c57c7465113416127"];
-        items.forEach((item, i) => {
-            console.log("[SONG] " + i + " | " + item.title);
-            const jingle = jingles[i];
-            console.log("[JINGLE-ID] " + jingle);
-            setTimeout(() => {
-                AzuracastService.requestSong(jingle).then(() => {
-                    AzuracastService.requestSong(item.unique_id);
-                }).catch(() => {
-                    console.log("JINGLE ERROR!");
-                });
-                if(i === 4) {
-                    console.log("LAST ITEM!");
-                }
-            }, 10000*i);
+        const items = voting.items.slice(0, 5);
+        const jingles = ["atomic_mixed_4.mp3", "atomic_mixed_3.mp3", "atomic_mixed_2.mp3", "atomic_mixed_1.mp3", "atomic_mixed_0.mp3"];
+        AzuracastService.deleteQueue().then(() => {
+            const songs = [jingles[4], items[4].filePath, jingles[3], items[3].filePath, jingles[2], items[2].filePath, jingles[1], items[1].filePath, jingles[0], items[0].filePath];
+            AzuracastService.requestSongs(songs);
         });
     }
 

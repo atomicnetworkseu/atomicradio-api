@@ -19,6 +19,7 @@ export namespace VotingController {
         const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
         const ip = String(xForwardedFor).split(",")[0].trim();
         for(const item of items) {
+            delete item.filePath;
             if(VotingService.hasVoted(ip, item.id)) {
                 item.voted = true;
             } else {
@@ -41,6 +42,9 @@ export namespace VotingController {
         const voting = CacheService.get("voting") as VotingModel;
         if(voting.items.length === 0) {
             return res.status(404).json({ code: 404, message: "There are currently no songs in the voting. Try again later." });
+        }
+        if(voting.completed) {
+            return res.status(500).json({ code: 500, message: "Voting has been closed. Try again later." });
         }
 
         const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;

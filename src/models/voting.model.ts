@@ -2,7 +2,7 @@ import { ArtworksModel } from "./song.model";
 
 export interface VotingModel {
     items: VoteSongModel[],
-    completed?: boolean,
+    completed: boolean,
     created_at: number,
     ending_at: number
 }
@@ -13,6 +13,7 @@ export interface VoteSongModel {
     artist: string,
     title: string,
     type: string,
+    filePath?: string,
     votes: number,
     voted: boolean,
     preview_url: string,
