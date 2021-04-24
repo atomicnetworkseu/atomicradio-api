@@ -7,6 +7,7 @@ import { LogService } from "./log.service";
 export namespace VotingService {
 
     export function startVoting() {
+        LogService.logError("The voting has been started.");
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
             const newcomer = mediaArray.filter(x => x.playlists[1].name === "voting.newcomer");
@@ -50,7 +51,7 @@ export namespace VotingService {
             const voting: VotingModel = {
                 items: result,
                 created_at: new Date().getTime(),
-                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 19).getTime(),
+                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30).getTime(),
                 completed: false
             };
             CacheService.set("voting", voting, new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime()-new Date().getTime());
@@ -96,6 +97,9 @@ export namespace VotingService {
             const songs = [jingles[4], items[4].filePath, jingles[3], items[3].filePath, jingles[2], items[2].filePath, jingles[1], items[1].filePath, jingles[0], items[0].filePath];
             AzuracastService.requestSongs(songs);
         });
+        setTimeout(() => {
+            VotingService.startVoting();
+        }, (voting.ending_at-new Date().getTime()));
     }
 
 }
