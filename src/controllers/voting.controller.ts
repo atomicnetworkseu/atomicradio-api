@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { VotingModel } from "../models/voting.model";
+import { VoteSongModel, VotingModel } from "../models/voting.model";
 import { CacheService } from "../services/cache.service";
 import { VotingService } from "../services/voting.service";
 
@@ -15,18 +15,20 @@ export namespace VotingController {
             return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
         }
 
-        const items = voting.items.slice();
+        const result: VoteSongModel[] = [];
         const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
         const ip = String(xForwardedFor).split(",")[0].trim();
-        for(const item of items) {
-            delete item.filePath;
+        for(const item of voting.items) {
+            const song: VoteSongModel = { id: item.id, unique_id: item.unique_id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
             if(VotingService.hasVoted(ip, item.id)) {
-                item.voted = true;
+                song.voted = true;
             } else {
-                item.voted = false;
+                song.voted = false;
             }
+            result.push(song);
         }
-        return res.status(200).json(voting);
+        console.log(voting.items[0].filePath);
+        return res.status(200).json({ items: result, created_at: voting.created_at, ending_at: voting.ending_at, completed: voting.completed });
     }
 
     export function addVote(req: Request, res: Response) {
