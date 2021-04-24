@@ -67,18 +67,22 @@ export namespace VotingService {
         if(voting === undefined) return;
         if(voting.completed !== undefined) return;
         voting.completed = true;
-        AzuracastService.deleteQueue().then(() => {
-            for(let i = 0; i < 5; i++) {
-                const item = voting.items[5-i];
-                console.log(item);
-                setTimeout(() => {
-                    AzuracastService.requestSong("54c3eb6d0c2a42409b833f0b").then(() => {
-                        AzuracastService.requestSong(item.unique_id);
-                    }).catch(() => {
-                        AzuracastService.requestSong(item.unique_id);
-                    });
-                }, 5000*i);
-            }
+        const items = voting.items.slice(0, 5).reverse();
+        const jingles = ["54c3eb6d0c2a42409b833f0b", "a77b6935dec5b42fcb8d639d", "0c8611651dbb1b4252d60b8e", "bc069632c877005aa6f2d565", "f0a0066c57c7465113416127"];
+        items.forEach((item, i) => {
+            console.log("[SONG] " + i + " | " + item.title);
+            const jingle = jingles[i];
+            console.log("[JINGLE-ID] " + jingle);
+            setTimeout(() => {
+                AzuracastService.requestSong(jingle).then(() => {
+                    AzuracastService.requestSong(item.unique_id);
+                }).catch(() => {
+                    console.log("JINGLE ERROR!");
+                });
+                if(i === 4) {
+                    console.log("LAST ITEM!");
+                }
+            }, 10000*i);
         });
     }
 
