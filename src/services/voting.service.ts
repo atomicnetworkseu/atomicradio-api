@@ -9,16 +9,34 @@ export namespace VotingService {
     export function startVoting() {
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            for(let i = 1; i < 31; i++) {
-                const media_id = Math.floor(Math.random()*mediaArray.length);
-                const media = mediaArray[media_id];
-                mediaArray.splice(media_id, 1);
+            const newcomer = mediaArray.filter(x => x.playlists[1].name === "voting.newcomer");
+            const charts = mediaArray.filter(x => x.playlists[1].name === "voting.charts");
+            for(let i = 1; i < 16; i++) {
+                const media_id = Math.floor(Math.random()*newcomer.length);
+                const media = newcomer[media_id];
+                newcomer.splice(media_id, 1);
                 result.push({
                     id: i,
-                    unique_id: String(media.media.links.waveform).split("waveform/")[1].split("-")[0],
+                    unique_id: media.media.id,
                     artist: media.media.artist,
                     title: media.media.title,
-                    playlist: media.playlists[0].name,
+                    type: "NEWCOMER",
+                    votes: 0,
+                    voted: null,
+                    preview_url: "",
+                    artworks: ArtworkService.getArtworks(media.media.id, "http://" + process.env.AZURACAST_API + media.media.art)
+                });
+            }
+            for(let i = 1; i < 16; i++) {
+                const media_id = Math.floor(Math.random()*charts.length);
+                const media = charts[media_id];
+                charts.splice(media_id, 1);
+                result.push({
+                    id: i+15,
+                    unique_id: media.media.id,
+                    artist: media.media.artist,
+                    title: media.media.title,
+                    type: "CHARTS",
                     votes: 0,
                     voted: null,
                     preview_url: "",
