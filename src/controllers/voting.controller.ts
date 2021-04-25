@@ -18,6 +18,9 @@ export namespace VotingController {
         const result: VoteSongModel[] = [];
         const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
         const ip = String(xForwardedFor).split(",")[0].trim();
+        if(ip === "" || ip === undefined) {
+            return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+        }
         for(const item of voting.items) {
             const song: VoteSongModel = { id: item.id, unique_id: item.unique_id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
             if(VotingService.hasVoted(ip, item.id)) {
@@ -25,9 +28,9 @@ export namespace VotingController {
             } else {
                 song.voted = false;
             }
+            console.log(`[${item.id}/${ip}]` + VotingService.hasVoted(ip, item.id));
             result.push(song);
         }
-        console.log(voting.items[0].filePath);
         return res.status(200).json({ items: result, created_at: voting.created_at, ending_at: voting.ending_at, completed: voting.completed });
     }
 

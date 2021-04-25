@@ -221,8 +221,14 @@ export namespace AzuracastService {
       const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
       axios
         .get(stationUrl, { headers: header })
-        .then((response) => {
-          resolve(response.data);
+        .then(async (response) => {
+          const media: any[] = response.data;
+          await media.forEach((value, i) => {
+            if(value.playlists[0] === undefined || value.media.is_dir) {
+                media.splice(i, 1);
+            }
+          });
+          resolve(media);
         });
     });
   }
@@ -236,8 +242,7 @@ export namespace AzuracastService {
         const body = response.data as any[];
         for(const item of body) {
           axios.delete(item.links.self, { headers: header })
-            .catch((err) => {
-              console.log(err);
+            .catch(() => {
               LogService.logError("Error while deleting station queue.");
             });
         }
@@ -252,8 +257,7 @@ export namespace AzuracastService {
     return new Promise((resolve, reject) => {
       axios.put(stationUrl, {do: "queue", files: songs}, { headers: header }).then(() => {
         resolve(true);
-        }).catch((err) => {
-          console.log(err);
+        }).catch(() => {
           LogService.logError("Error while requesting voted songs.");
         });
     });
