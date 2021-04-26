@@ -2,7 +2,7 @@ import axios from "axios";
 import { ChannelModel } from "../models/channel.model";
 import { SongModel } from "../models/song.model";
 import { ArtworkService } from "./artwork.service";
-import { CacheService } from "./cache.service";
+import { MemoryCacheService } from "./cache.service";
 import { LogService } from "./log.service";
 import { MAirListService } from "./mairlist.service";
 import { SocketService } from "./socket.service";
@@ -51,26 +51,26 @@ export namespace AzuracastService {
                 };
               }
               if (response.data.live.is_live && channelInfo.name === "atr.one") {
-                CacheService.set("channel-" + channelId, channelInfo, 1000);
+                MemoryCacheService.set("channel-" + channelId, channelInfo, 1000);
                 SocketService.emitUpdate(channelId, channelInfo);
               } else {
-                CacheService.set("channel-" + channelId, channelInfo, response.data.now_playing.remaining * 1000);
+                MemoryCacheService.set("channel-" + channelId, channelInfo, response.data.now_playing.remaining * 1000);
                 SocketService.emitUpdate(channelId, channelInfo);
               }
               resolve(channelInfo);
 
             }).catch(() => {
-              CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+              MemoryCacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
               LogService.logError("Error while reading history informations. (" + channelId + ")");
             });
           }).catch(() => {
-            CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+            MemoryCacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
             LogService.logError("Error while reading schedule informations. (" + channelId + ")");
           });
 
         })
         .catch(() => {
-          CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+          MemoryCacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
           LogService.logError("Error while reading station informations. (" + channelId + ")");
         });
     });

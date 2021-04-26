@@ -27,10 +27,10 @@ SocketService.init(httpServer);
 dotenv.config();
 AzuracastService.getStationInfos("one");
 AzuracastService.getStationInfos("dance");
-AzuracastService.getStationInfos("trap");
-ListenerService.requestListener();
-
-VotingService.startVoting();
+AzuracastService.getStationInfos("trap").then(() => {
+  ListenerService.requestListener();
+  VotingService.startVoting();
+});
 
 morgan.token("host", (req: express.Request, res: express.Response) => {
   return req.hostname;

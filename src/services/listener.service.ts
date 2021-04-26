@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CacheService } from "./cache.service";
+import { MemoryCacheService } from "./cache.service";
 import { LogService } from "./log.service";
 import { SocketService } from "./socket.service";
 
@@ -21,9 +21,9 @@ export namespace ListenerService {
   export function getTeamSpeak(): Promise<number> {
     return new Promise(async (resolve, reject) => {
       let count = 0;
-      for (const botId of CacheService.getTeamSpeakCache().keys()) {
-        const bot = CacheService.getTeamSpeakCache().get(botId);
-        if (!CacheService.getTeamSpeakCache().isExpired(botId)) {
+      for (const botId of MemoryCacheService.getTeamSpeakCache().keys()) {
+        const bot = MemoryCacheService.getTeamSpeakCache().get(botId);
+        if (!MemoryCacheService.getTeamSpeakCache().isExpired(botId)) {
           count += Number(bot.value);
         }
       }
@@ -41,25 +41,25 @@ export namespace ListenerService {
       LogService.logError("Error while requesting listener data.");
     }
     if (
-      CacheService.get("channel-one") === undefined ||
-      CacheService.get("channel-dance") === undefined ||
-      CacheService.get("channel-trap") === undefined
+      MemoryCacheService.get("channel-one") === undefined ||
+      MemoryCacheService.get("channel-dance") === undefined ||
+      MemoryCacheService.get("channel-trap") === undefined
     ) {
-      CacheService.set("listeners", { web: 0, discord: 0, teamspeak: 0, all: 0 }, 5000);
+      MemoryCacheService.set("listeners", { web: 0, discord: 0, teamspeak: 0, all: 0 }, 5000);
       SocketService.emitUpdate("listeners", 0);
       return;
     }
     const web =
-      Number(CacheService.get("channel-one").listeners) +
-      Number(CacheService.get("channel-dance").listeners) +
-      Number(CacheService.get("channel-trap").listeners);
-    CacheService.set("listeners", { web, discord, teamspeak, all: web + discord + teamspeak }, 5000);
+      Number(MemoryCacheService.get("channel-one").listeners) +
+      Number(MemoryCacheService.get("channel-dance").listeners) +
+      Number(MemoryCacheService.get("channel-trap").listeners);
+      MemoryCacheService.set("listeners", { web, discord, teamspeak, all: web + discord + teamspeak }, 5000);
     SocketService.emitUpdate("listeners", web + discord + teamspeak);
   }
 
   export function getListener() {
-    if (CacheService.get("listeners") !== undefined) {
-      return CacheService.get("listeners");
+    if (MemoryCacheService.get("listeners") !== undefined) {
+      return MemoryCacheService.get("listeners");
     } else {
       return { web: 0, discord: 0, teamspeak: 0, all: 0 };
     }

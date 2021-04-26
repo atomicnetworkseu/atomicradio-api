@@ -1,19 +1,23 @@
-import CacheManager from "fast-node-cache";
 import { VoteModel, VotingModel, VoteSongModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
+import CacheManager from "./cache.service";
 import { LogService } from "./log.service";
 
-const cache = new CacheManager({
-    cacheDirectory: "caches",
-    memoryOnly: false,
-    discardTamperedCache: true
+const cache = new CacheManager("cache");
+cache.onTimeout.subscribe((data) => {
+    console.log(data);
+    if(data.key === "voting") {
+        VotingService.completeVoting();
+    }
 });
 
 export namespace VotingService {
 
     export function startVoting() {
+        if(cache.get("voting") !== null) return;
         LogService.logError("The voting has been started.");
+        cache.clear();
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
             const newcomer = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
@@ -69,12 +73,12 @@ export namespace VotingService {
     export function addVote(ip: string, id: number) {
         const voting = cache.get("voting") as VotingModel;
         const song = voting.items.find(x => x.id === id);
-        if(voting === undefined || song === undefined) {
+        if(voting === null || song === undefined) {
             return undefined;
         }
 
         const votes = cache.get("votes") as VoteModel[];
-        if(votes === undefined) {
+        if(votes === null) {
             cache.set("votes", [{ id, ip }]);
         } else {
             votes.push({ id, ip });
@@ -82,12 +86,14 @@ export namespace VotingService {
         }
         song.votes += 1;
         voting.items.sort((a, b) => {return b.votes-a.votes});
+        const date = new Date(voting.ending_at);
+        cache.set("voting", voting, new Date(date.getFullYear(), date.getMonth(), date.getDate(), 18).getTime()-new Date().getTime());
         return song;
     }
 
     export function hasVoted(ip: string, id: number) {
         const votes = cache.get("votes") as VoteModel[];
-        if(votes === undefined) return false;
+        if(votes === null) return false;
         const vote = votes.find(x => x.ip === ip && x.id === id);
         if(vote === undefined) return false;
         return true;
@@ -95,7 +101,7 @@ export namespace VotingService {
 
     export function completeVoting() {
         const voting = cache.get("voting") as VotingModel;
-        if(voting === undefined) return;
+        if(voting === null) return;
         if(voting.completed) return;
         voting.completed = true;
         const items = voting.items.slice(0, 5);
