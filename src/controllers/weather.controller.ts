@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import anonymize from "ip-anonymize";
-import { MemoryCacheService } from "../services/cache.service";
+import { CacheService } from "../services/cache.service";
 import { LogService } from "../services/log.service";
 import { WeatherModel } from "../models/weather.model";
 
@@ -82,15 +82,15 @@ export namespace WeatherController {
 
   function requestIpInformations(ip: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (MemoryCacheService.getIpCache().get(ip) !== undefined) {
-        if (!MemoryCacheService.getIpCache().isExpired(ip)) {
-          resolve(MemoryCacheService.getIpCache().get(ip));
+      if (CacheService.getIpCache().get(ip) !== undefined) {
+        if (!CacheService.getIpCache().isExpired(ip)) {
+          resolve(CacheService.getIpCache().get(ip));
         }
       }
       axios
         .get("https://ipinfo.io/" + ip + "?token=" + process.env.IPINFO_TOKEN)
         .then((response) => {
-          MemoryCacheService.getIpCache().set(ip, response.data, 86400000);
+          CacheService.getIpCache().set(ip, response.data, 86400000);
           resolve(response.data);
         })
         .catch((error) => {
