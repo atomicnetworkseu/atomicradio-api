@@ -4,7 +4,6 @@ import { ListenerService } from "./listener.service";
 import { VotingService } from "./voting.service";
 
 const cache = new CacheManager({
-  cacheDirectory: "caches",
   memoryOnly: true,
   discardTamperedCache: true
 });

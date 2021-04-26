@@ -1,8 +1,14 @@
+import CacheManager from "fast-node-cache";
 import { VoteModel, VotingModel, VoteSongModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
-import { CacheService } from "./cache.service";
 import { LogService } from "./log.service";
+
+const cache = new CacheManager({
+    cacheDirectory: "caches",
+    memoryOnly: false,
+    discardTamperedCache: true
+});
 
 export namespace VotingService {
 
@@ -10,8 +16,8 @@ export namespace VotingService {
         LogService.logError("The voting has been started.");
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            const newcomer = mediaArray.filter(x => x.playlists[1].name === "voting.newcomer");
-            const charts = mediaArray.filter(x => x.playlists[1].name === "voting.charts");
+            const newcomer = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
+            const charts = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*newcomer.length);
                 const media = newcomer[media_id];
@@ -54,24 +60,25 @@ export namespace VotingService {
                 ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30).getTime(),
                 completed: false
             };
-            CacheService.set("voting", voting, new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime()-new Date().getTime());
-        }).catch(() => {
+            cache.set("voting", voting, new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime()-new Date().getTime());
+        }).catch((err) => {
             LogService.logError("Error while reading azuracast media list.");
         });
     }
 
     export function addVote(ip: string, id: number) {
-        const voting = CacheService.get("voting") as VotingModel;
+        const voting = cache.get("voting") as VotingModel;
         const song = voting.items.find(x => x.id === id);
         if(voting === undefined || song === undefined) {
             return undefined;
         }
 
-        const votes = CacheService.get("votes") as VoteModel[];
+        const votes = cache.get("votes") as VoteModel[];
         if(votes === undefined) {
-            CacheService.set("votes", [{ id, ip }]);
+            cache.set("votes", [{ id, ip }]);
         } else {
             votes.push({ id, ip });
+            cache.set("votes", votes);
         }
         song.votes += 1;
         voting.items.sort((a, b) => {return b.votes-a.votes});
@@ -79,7 +86,7 @@ export namespace VotingService {
     }
 
     export function hasVoted(ip: string, id: number) {
-        const votes = CacheService.get("votes") as VoteModel[];
+        const votes = cache.get("votes") as VoteModel[];
         if(votes === undefined) return false;
         const vote = votes.find(x => x.ip === ip && x.id === id);
         if(vote === undefined) return false;
@@ -87,7 +94,7 @@ export namespace VotingService {
     }
 
     export function completeVoting() {
-        const voting = CacheService.get("voting") as VotingModel;
+        const voting = cache.get("voting") as VotingModel;
         if(voting === undefined) return;
         if(voting.completed) return;
         voting.completed = true;
@@ -100,6 +107,10 @@ export namespace VotingService {
         setTimeout(() => {
             VotingService.startVoting();
         }, (voting.ending_at-new Date().getTime()));
+    }
+
+    export function getCache() {
+        return cache;
     }
 
 }

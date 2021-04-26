@@ -26,8 +26,8 @@ SocketService.init(httpServer);
 
 dotenv.config();
 AzuracastService.getStationInfos("one");
-// AzuracastService.getStationInfos("dance");
-// AzuracastService.getStationInfos("trap");
+AzuracastService.getStationInfos("dance");
+AzuracastService.getStationInfos("trap");
 ListenerService.requestListener();
 
 VotingService.startVoting();
