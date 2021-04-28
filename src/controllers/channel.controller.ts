@@ -9,18 +9,18 @@ import { ChannelModel } from "../models/channel.model";
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
     const channelOne = CacheService.get("channel-one") as ChannelModel;
-    const channelGaming = CacheService.get("channel-gaming") as ChannelModel;
-    const channelRap = CacheService.get("channel-rap") as ChannelModel;
+    const channelDance = CacheService.get("channel-dance") as ChannelModel;
+    const channelTrap = CacheService.get("channel-trap") as ChannelModel;
     const listeners = CacheService.get("listeners");
-    if(channelOne === undefined || channelGaming === undefined || channelRap === undefined) {
+    if(channelOne === undefined || channelDance === undefined || channelTrap === undefined) {
       return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
     }
     if (listeners === undefined) {
       return res
         .status(200)
-        .json({ listeners: { discord: 0, teamspeak: 0, web: 0, all: 0 }, one: channelOne, gaming: channelGaming, rap: channelRap });
+        .json({ listeners: { discord: 0, teamspeak: 0, web: 0, all: 0 }, one: channelOne, dance: channelDance, trap: channelTrap });
     }
-    return res.status(200).json({ listeners, one: channelOne, gaming: channelGaming, rap: channelRap });
+    return res.status(200).json({ listeners, one: channelOne, dance: channelDance, trap: channelTrap });
   }
 
   export function getChannelById(req: Request, res: Response) {
@@ -38,18 +38,18 @@ export namespace ChannelController {
         }
         const channelOne = CacheService.get("channel-one") as ChannelModel;
         return res.status(200).json(channelOne);
-      case "gaming":
-        if(CacheService.get("channel-gaming") === undefined || CacheService.get("channel-gaming").code !== undefined) {
+      case "dance":
+        if(CacheService.get("channel-dance") === undefined || CacheService.get("channel-dance").code !== undefined) {
           return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
         }
-        const channelGaming = CacheService.get("channel-gaming") as ChannelModel;
-        return res.status(200).json(channelGaming);
-      case "rap":
-        if(CacheService.get("channel-rap") === undefined || CacheService.get("channel-rap").code !== undefined) {
+        const channelDance = CacheService.get("channel-dance") as ChannelModel;
+        return res.status(200).json(channelDance);
+      case "trap":
+        if(CacheService.get("channel-trap") === undefined || CacheService.get("channel-trap").code !== undefined) {
           return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
         }
-        const channelRap = CacheService.get("channel-rap") as ChannelModel;
-        return res.status(200).json(channelRap);
+        const channelTrap = CacheService.get("channel-trap") as ChannelModel;
+        return res.status(200).json(channelTrap);
       default:
         return res.status(404).json({ code: 404, message: "This channel does not exist." });
     }
@@ -63,7 +63,7 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "gaming" || channelId === "rap") {
+    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
       if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
         return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
       }
@@ -82,7 +82,7 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "gaming" || channelId === "rap") {
+    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
       if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
         return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
       }
@@ -101,7 +101,7 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "gaming" || channelId === "rap") {
+    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
       if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
         return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
       }
@@ -120,7 +120,7 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "gaming" || channelId === "rap") {
+    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
       if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
         return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
       }
@@ -139,7 +139,7 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "gaming" || channelId === "rap") {
+    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
       if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
         return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
       }
@@ -172,7 +172,7 @@ export namespace ChannelController {
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.live);
-    } else if (channelId === "gaming" || channelId === "rap") {
+    } else if (channelId === "dance" || channelId === "trap") {
       return res.status(500).json({ code: 500, message: "Only our channel 'atr.one' has live metadata." });
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
