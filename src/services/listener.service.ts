@@ -42,8 +42,8 @@ export namespace ListenerService {
     }
     if (
       CacheService.get("channel-one") === undefined ||
-      CacheService.get("channel-dance") === undefined ||
-      CacheService.get("channel-trap") === undefined
+      CacheService.get("channel-gaming") === undefined ||
+      CacheService.get("channel-rap") === undefined
     ) {
       CacheService.set("listeners", { web: 0, discord: 0, teamspeak: 0, all: 0 }, 5000);
       SocketService.emitUpdate("listeners", 0);
@@ -51,8 +51,8 @@ export namespace ListenerService {
     }
     const web =
       Number(CacheService.get("channel-one").listeners) +
-      Number(CacheService.get("channel-dance").listeners) +
-      Number(CacheService.get("channel-trap").listeners);
+      Number(CacheService.get("channel-gaming").listeners) +
+      Number(CacheService.get("channel-rap").listeners);
     CacheService.set("listeners", { web, discord, teamspeak, all: web + discord + teamspeak }, 5000);
     SocketService.emitUpdate("listeners", web + discord + teamspeak);
   }

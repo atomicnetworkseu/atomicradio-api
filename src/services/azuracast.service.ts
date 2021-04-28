@@ -83,12 +83,12 @@ export namespace AzuracastService {
           de: "Entdecke das beste aus der Musikwelt und sei live dabei wenn sich Newcomer mit Chartlegenden batteln!",
           en: "Discover the best of the music world and be there live when newcomers battle each other with chart legends!"
         };
-      case "atr.dance":
+      case "atr.gaming":
         return {
           de: "Immer auf dem aktuellstem Stand über die besten Electrosongs, Mashups und Clubsounds.",
           en: "Always up to date about the best electro songs, mashups and club sounds."
         };
-      case "atr.trap":
+      case "atr.rap":
         return {
           de: "Fühle unsere, auf dich zugeschnittene Musik aus der Trap und Rapwelt zu jeder Uhrzeit, den ganzen Tag.",
           en: "Feel our customized music from the trap and rap world at any time, all day."

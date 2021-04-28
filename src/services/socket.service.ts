@@ -12,8 +12,8 @@ export namespace SocketService {
     io.on("connection", (client: any) => {
       LogService.logInfo(`Client connected [id=${client.id}]`);
       client.emit("one", CacheService.get("channel-one"));
-      client.emit("dance", CacheService.get("channel-dance"));
-      client.emit("trap", CacheService.get("channel-trap"));
+      client.emit("gaming", CacheService.get("channel-gaming"));
+      client.emit("rap", CacheService.get("channel-rap"));
       client.emit("listeners", CacheService.get("listeners").all);
       client.on("disconnect", () => {
         LogService.logInfo(`Client gone [id=${client.id}]`);
@@ -26,8 +26,8 @@ export namespace SocketService {
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
       CacheService.getWebSocketCache().set(id, webSocket);
       webSocket.send(JSON.stringify(CacheService.get("channel-one")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-dance")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-trap")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-gaming")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-rap")));
       webSocket.onclose = () => {
         CacheService.getWebSocketCache().set(id, undefined);
         LogService.logInfo(`PreMiD disconnected over websockets. [id=${id}]`);
