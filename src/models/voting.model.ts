@@ -2,8 +2,9 @@ import { ArtworksModel } from "./song.model";
 
 export interface VotingModel {
     items: VoteSongModel[],
-    completed: boolean,
+    closed: boolean,
     created_at: number,
+    closing_at: number,
     ending_at: number
 }
 

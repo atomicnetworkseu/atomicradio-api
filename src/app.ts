@@ -30,7 +30,7 @@ AzuracastService.getStationInfos("dance");
 AzuracastService.getStationInfos("trap");
 ListenerService.requestListener();
 
-VotingService.startVoting();
+VotingService.loadVoting();
 
 morgan.token("host", (req: express.Request, res: express.Response) => {
   return req.hostname;

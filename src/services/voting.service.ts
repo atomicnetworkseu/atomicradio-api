@@ -3,17 +3,43 @@ import { VoteModel, VotingModel, VoteSongModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
 import { LogService } from "./log.service";
+import { RedisService } from "./redis.service";
 
 const cache = new CacheManager({
-    cacheDirectory: "caches",
-    memoryOnly: false,
+    memoryOnly: true,
     discardTamperedCache: true
+});
+cache.on("update", (key, data) => {
+    console.log("update " + key);
+    RedisService.set(key, JSON.stringify(data));
+});
+cache.on("outdated", (key, data) => {
+    if (key.startsWith("voting")) {
+        VotingService.completeVoting();
+    }
 });
 
 export namespace VotingService {
 
+    export function loadVoting() {
+        RedisService.get("voting").then((voting: VotingModel) => {
+            if(voting.closing_at <= new Date().getTime()) {
+                startVoting();
+                return;
+            }
+            cache.set("voting", voting, voting.closing_at-new Date().getTime());
+            LogService.logInfo("The voting has been loaded.");
+            RedisService.get("votes").then((votes: VoteModel[]) => {
+                cache.set("votes", votes);
+            });
+        }).catch((err) => {
+            startVoting();
+        });
+    }
+
     export function startVoting() {
-        LogService.logError("The voting has been started.");
+        LogService.logInfo("The voting has been started.");
+        RedisService.clear();
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
             const newcomer = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
@@ -57,10 +83,11 @@ export namespace VotingService {
             const voting: VotingModel = {
                 items: result,
                 created_at: new Date().getTime(),
+                closing_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime(),
                 ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30).getTime(),
-                completed: false
+                closed: false
             };
-            cache.set("voting", voting, new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime()-new Date().getTime());
+            cache.set("voting", voting, voting.closing_at-new Date().getTime());
         }).catch((err) => {
             LogService.logError("Error while reading azuracast media list.");
         });
@@ -82,6 +109,7 @@ export namespace VotingService {
         }
         song.votes += 1;
         voting.items.sort((a, b) => {return b.votes-a.votes});
+        cache.set("voting", voting, voting.closing_at-new Date().getTime());
         return song;
     }
 
@@ -96,8 +124,8 @@ export namespace VotingService {
     export function completeVoting() {
         const voting = cache.get("voting") as VotingModel;
         if(voting === undefined) return;
-        if(voting.completed) return;
-        voting.completed = true;
+        if(voting.closed) return;
+        voting.closed = true;
         const items = voting.items.slice(0, 5);
         const jingles = ["atomic_mixed_4.mp3", "atomic_mixed_3.mp3", "atomic_mixed_2.mp3", "atomic_mixed_1.mp3", "atomic_mixed_0.mp3"];
         AzuracastService.deleteQueue().then(() => {
