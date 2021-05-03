@@ -42,8 +42,8 @@ export namespace VotingService {
         RedisService.clear();
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            const newcomer = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
-            const charts = mediaArray.filter(x => x.playlists[0].name === "#MAINSTAGE");
+            const newcomer = mediaArray.filter(x => x.playlists[0].name === "voting.newcomer");
+            const charts = mediaArray.filter(x => x.playlists[0].name === "voting.charts");
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*newcomer.length);
                 const media = newcomer[media_id];
@@ -53,7 +53,7 @@ export namespace VotingService {
                     unique_id: media.media.id,
                     artist: media.media.artist,
                     title: media.media.title,
-                    type: "NEWCOMER",
+                    type: "#NEWCOMER",
                     filePath: media.path,
                     votes: 0,
                     voted: null,
@@ -70,7 +70,7 @@ export namespace VotingService {
                     unique_id: media.media.id,
                     artist: media.media.artist,
                     title: media.media.title,
-                    type: "CHARTS",
+                    type: "#CHARTS",
                     filePath: media.path,
                     votes: 0,
                     voted: null,
@@ -127,7 +127,7 @@ export namespace VotingService {
         if(voting.closed) return;
         voting.closed = true;
         const items = voting.items.slice(0, 5);
-        const jingles = ["atomic_mixed_4.mp3", "atomic_mixed_3.mp3", "atomic_mixed_2.mp3", "atomic_mixed_1.mp3", "atomic_mixed_0.mp3"];
+        const jingles = ["jingles/voting/place5.mp3", "jingles/voting/place4.mp3", "jingles/voting/place3.mp3", "jingles/voting/place2.mp3", "jingles/voting/place1.mp3"];
         AzuracastService.deleteQueue().then(() => {
             const songs = [jingles[4], items[4].filePath, jingles[3], items[3].filePath, jingles[2], items[2].filePath, jingles[1], items[1].filePath, jingles[0], items[0].filePath];
             AzuracastService.requestSongs(songs);
