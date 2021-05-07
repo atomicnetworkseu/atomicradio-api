@@ -8,14 +8,13 @@ import { ChannelModel } from "../models/channel.model";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
-    if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined ||
-    CacheService.get("channel-dance").code !== undefined || CacheService.get("channel-trap").code !== undefined) {
-      return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
-    }
     const channelOne = CacheService.get("channel-one") as ChannelModel;
     const channelDance = CacheService.get("channel-dance") as ChannelModel;
     const channelTrap = CacheService.get("channel-trap") as ChannelModel;
     const listeners = CacheService.get("listeners");
+    if(channelOne === undefined || channelDance === undefined || channelTrap === undefined) {
+      return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+    }
     if (listeners === undefined) {
       return res
         .status(200)
@@ -187,7 +186,7 @@ export namespace ChannelController {
       }
 
       const base64Token = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("utf8");
-      const jtwToken = base64Token.split(":")[1];
+      const jtwToken = Buffer.from(base64Token.split(":")[1], "base64").toString("utf8");
       try {
         const token: any = JWT.verify(jtwToken, process.env.STREAMER_TOKEN);
         if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {

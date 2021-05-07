@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 FROM node:current-alpine
 
 WORKDIR /opt/tmp
