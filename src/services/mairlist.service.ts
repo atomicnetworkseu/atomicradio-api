@@ -49,7 +49,7 @@ export namespace MAirListService {
         const foundArtId = cache.get(key);
         if(foundArtId !== undefined) {
             return {
-                1000: `https://cdn.atomicradio.eulive/${foundArtId}/1000.jpg`,
+                1000: `https://cdn.atomicradio.eu/live/${foundArtId}/1000.jpg`,
                 500: `https://cdn.atomicradio.eu/live/${foundArtId}/0500.jpg`,
                 250: `https://cdn.atomicradio.eu/live/${foundArtId}/0250.jpg`,
                 100: `https://cdn.atomicradio.eu/live/${foundArtId}/0100.jpg`

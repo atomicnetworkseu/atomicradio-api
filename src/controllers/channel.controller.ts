@@ -187,7 +187,7 @@ export namespace ChannelController {
       }
 
       const base64Token = Buffer.from(req.headers.authorization.split(" ")[1], "base64").toString("utf8");
-      const jtwToken = base64Token.split(":")[1];
+      const jtwToken = Buffer.from(base64Token.split(":")[1], "base64").toString("utf8");
       try {
         const token: any = JWT.verify(jtwToken, process.env.STREAMER_TOKEN);
         if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
