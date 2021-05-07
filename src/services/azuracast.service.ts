@@ -214,4 +214,53 @@ export namespace AzuracastService {
       });
     });
   }
+
+  export function getMedia(): Promise<any[]> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/files/list?currentDirectory=one";
+    return new Promise((resolve, reject) => {
+      const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+      axios
+        .get(stationUrl, { headers: header })
+        .then(async (response) => {
+          const media: any[] = response.data;
+          await media.forEach((value, i) => {
+            if(value.playlists[0] === undefined || value.media.is_dir) {
+                media.splice(i, 1);
+            }
+          });
+          resolve(media);
+        });
+    });
+  }
+
+  export function deleteQueue(): Promise<boolean> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/queue";
+    const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+    return new Promise((resolve, reject) => {
+      axios.get(stationUrl, { headers: header })
+      .then((response) => {
+        const body = response.data as any[];
+        for(const item of body) {
+          axios.delete(item.links.self, { headers: header })
+            .catch(() => {
+              LogService.logError("Error while deleting station queue.");
+            });
+        }
+        resolve(true);
+      });
+    });
+  }
+
+  export function requestSongs(songs: string[]): Promise<boolean> {
+    const stationUrl = "http://" + process.env.AZURACAST_API + "/api/station/1/files/batch";
+    const header = { "X-API-Key": process.env.AZURACAST_TOKEN };
+    return new Promise((resolve, reject) => {
+      axios.put(stationUrl, {do: "queue", files: songs}, { headers: header }).then(() => {
+        resolve(true);
+        }).catch(() => {
+          LogService.logError("Error while requesting voted songs.");
+        });
+    });
+  }
+
 }

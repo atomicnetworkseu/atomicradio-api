@@ -3,7 +3,6 @@ import { AzuracastService } from "./azuracast.service";
 import { ListenerService } from "./listener.service";
 
 const cache = new CacheManager({
-  cacheDirectory: "caches",
   memoryOnly: true,
   discardTamperedCache: true
 });
