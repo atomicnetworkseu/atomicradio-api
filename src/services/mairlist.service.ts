@@ -20,7 +20,7 @@ export namespace MAirListService {
 
         liveData.song.artist = String(data.artist).toUpperCase();
         liveData.song.title = String(data.title).toUpperCase();
-        liveData.song.start_at = MAirListService.convertStartToSeconds(data.start_at);
+        liveData.song.start_at = Number(MAirListService.convertStartToSeconds(data.start_at)) + 4;
         liveData.song.duration = MAirListService.convertDurationToSeconds(data.duration);
         liveData.song.artworks = MAirListService.saveArtworks(data.artist + " - " + data.title, data.artwork);
 
@@ -30,8 +30,8 @@ export namespace MAirListService {
                 artist: String(item.artist).toUpperCase(),
                 title: String(item.title).toUpperCase(),
                 playlist: "",
-                start_at: MAirListService.convertStartToSeconds(item.start_at),
-                end_at: Number(MAirListService.convertStartToSeconds(item.start_at)) + Number(MAirListService.convertDurationToSeconds(item.duration)),
+                start_at: Number(MAirListService.convertStartToSeconds(item.start_at)) + 4,
+                end_at: Number(MAirListService.convertStartToSeconds(item.start_at)) + 4 + Number(MAirListService.convertDurationToSeconds(item.duration)),
                 duration: MAirListService.convertDurationToSeconds(item.duration),
                 artworks: MAirListService.saveArtworks(item.artist + " - " + item.title, item.artwork)
             });
