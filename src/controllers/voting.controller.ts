@@ -29,7 +29,7 @@ export namespace VotingController {
             }
             result.push(song);
         }
-        return res.status(200).json({ items: result, created_at: voting.created_at, closing_at: voting.closing_at, ending_at: voting.ending_at, closed: voting.closed });
+        return res.status(200).json({ items: result, active: voting.active, created: voting.created, closing: voting.closing, next: voting.next });
     }
 
     export function addVote(req: Request, res: Response) {
@@ -46,7 +46,7 @@ export namespace VotingController {
         if(voting.items.length === 0) {
             return res.status(404).json({ code: 404, message: "There are currently no songs in the voting. Try again later." });
         }
-        if(voting.closed) {
+        if(voting.active) {
             return res.status(403).json({ code: 403, message: "Voting has been closed. Try again later." });
         }
 
