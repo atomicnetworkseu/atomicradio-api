@@ -30,6 +30,10 @@ export namespace VotingService {
             cache.set("voting", voting, voting.closing_at-new Date().getTime());
             LogService.logInfo("The voting has been loaded.");
             RedisService.get("votes").then((votes: VoteModel[]) => {
+                if(votes === null || votes === undefined) {
+                    cache.set("votes", []);
+                    return;
+                }
                 cache.set("votes", votes);
             });
         }).catch((err) => {
