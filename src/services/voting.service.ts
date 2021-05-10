@@ -46,8 +46,8 @@ export namespace VotingService {
         RedisService.clear();
         AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            const newcomer = mediaArray.filter(x => x.playlists[0].name === "voting.newcomer");
-            const charts = mediaArray.filter(x => x.playlists[0].name === "voting.charts");
+            const newcomer = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.newcomer")).length !== 0);
+            const charts = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.charts")).length !== 0);
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*newcomer.length);
                 const media = newcomer[media_id];
