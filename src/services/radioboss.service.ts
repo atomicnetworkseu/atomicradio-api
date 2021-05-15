@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import parser from "xml2json";
 import { LastPlayed, PlayBackInfo, Playlist } from "../models/radioboss.model";
 
@@ -30,6 +30,14 @@ export namespace RadioBossService {
                 const data = parser.toJson(response.data);
                 const playlist = JSON.parse(data) as Playlist;
                 resolve(playlist);
+            });
+        });
+    }
+
+    export function getCurrentArtwork(): Promise<AxiosResponse<any>> {
+        return new Promise((resolve, reject) => {
+            axios.get("http://127.0.0.1:9000/?pass=RoaWrgCUhX&action=trackartwork", { responseType: "stream" }).then((response) => {
+                resolve(response);
             });
         });
     }

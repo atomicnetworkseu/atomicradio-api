@@ -1,4 +1,4 @@
-import { ArtworksModel } from "./song.model";
+import { ArtworksModel } from "./artwork.model";
 
 export interface VotingModel {
     items: VoteSongModel[],

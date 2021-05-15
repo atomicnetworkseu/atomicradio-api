@@ -1,3 +1,5 @@
+import { ArtworksModel } from "./artwork.model";
+
 export interface SongModel {
     artist: string,
     title: string,
@@ -6,11 +8,4 @@ export interface SongModel {
     end_at: Date,
     duration: number,
     artworks: ArtworksModel
-}
-
-export interface ArtworksModel {
-    100: string,
-    250: string,
-    500: string,
-    1000: string
 }

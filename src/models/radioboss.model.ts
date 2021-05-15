@@ -49,6 +49,7 @@ export interface Track {
     DURATION: string,
     PLAYCOUNT: string,
     LASTPLAYED: string,
+    STARTTIME?: string,
     INTRO: string,
     OUTRO: string,
     LANGUAGE: string,

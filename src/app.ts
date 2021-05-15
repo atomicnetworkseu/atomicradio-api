@@ -13,6 +13,7 @@ import channel from "./routers/channel.router";
 import weather from "./routers/weather.router";
 import card from "./routers/card.router";
 import voting from "./routers/voting.router";
+import { connect } from "mongoose";
 import { LogService } from "./services/log.service";
 import { SocketService } from "./services/socket.service";
 import { RateLimiterService } from "./services/ratelimiter.service";
@@ -20,6 +21,9 @@ import { ChannelService } from "./services/channel.service";
 
 const app = express();
 const httpServer = new http.Server(app);
+
+connect("mongodb://localhost/atomicradio-api", { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false });
+
 SocketService.init(httpServer);
 
 dotenv.config();
