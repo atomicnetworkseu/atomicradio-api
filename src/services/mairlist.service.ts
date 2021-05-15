@@ -1,9 +1,7 @@
 import * as fs from "fs";
 import sharp from "sharp";
 import CacheManager from "fast-node-cache";
-import { ArtworkService } from "./artwork.service";
 import { LogService } from "./log.service";
-import { AzuracastService } from "./azuracast.service";
 import { SongModel } from "../models/song.model";
 
 const cache = new CacheManager({
@@ -38,13 +36,13 @@ export namespace MAirListService {
         }
 
         cache.set("live_metadata", liveData);
-        AzuracastService.getStationInfos("one");
+        // AzuracastService.getStationInfos("one");
     }
 
     export function saveArtworks(key: string, base64Image: string) {
-        if (base64Image.length === 0) {
+        /*if (base64Image.length === 0) {
             return ArtworkService.getErrorArtworks();
-        }
+        }*/
 
         const foundArtId = cache.get(key);
         if(foundArtId !== undefined) {
@@ -98,9 +96,9 @@ export namespace MAirListService {
 
     export function getArtwork(key: string) {
         const artId = cache.get(key);
-        if(artId === undefined) {
+        /*if(artId === undefined) {
             return ArtworkService.getErrorArtworks();
-        }
+        }*/
         return {
             1000: `https://cdn.atomicradio.eu/live/${artId}/1000.jpg`,
             500: `https://cdn.atomicradio.eu/live/${artId}/0500.jpg`,
@@ -120,18 +118,18 @@ export namespace MAirListService {
                 artist: "LISTEN TO THE DIFFERENCE!",
                 title: "ATOMICRADIO",
                 playlist: "",
-                start_at: 0,
-                end_at: 0,
+                start_at: null,
+                end_at: null,
                 duration: 0,
-                artworks: ArtworkService.getErrorArtworks()
+                artworks: null
             };
         }
         return {
             artist: metadata.song.artist,
             title: metadata.song.title,
             playlist: "",
-            start_at: Number(metadata.song.start_at),
-            end_at: Number(metadata.song.start_at) + Number(metadata.song.duration),
+            start_at: null,
+            end_at: null,
             duration: Number(metadata.song.duration),
             artworks: metadata.song.artworks
         };

@@ -2,8 +2,8 @@ export interface SongModel {
     artist: string,
     title: string,
     playlist: string,
-    start_at: number,
-    end_at: number,
+    start_at: Date,
+    end_at: Date,
     duration: number,
     artworks: ArtworksModel
 }

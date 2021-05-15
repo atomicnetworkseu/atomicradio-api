@@ -1,18 +1,17 @@
 import { Request, Response } from "express";
 import JWT from "jsonwebtoken";
 import { CacheService } from "../services/cache.service";
-import { AzuracastService } from "../services/azuracast.service";
 import { MAirListService } from "../services/mairlist.service";
 import { LogService } from "../services/log.service";
 import { ChannelModel } from "../models/channel.model";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
-    const channelOne = CacheService.get("channel-one") as ChannelModel;
-    const channelDance = CacheService.get("channel-dance") as ChannelModel;
-    const channelTrap = CacheService.get("channel-trap") as ChannelModel;
+    const channelOne = CacheService.get("channel-atr.one") as ChannelModel;
+    const channelDance = CacheService.get("channel-atr.dance") as ChannelModel;
+    const channelTrap = CacheService.get("channel-atr.trap") as ChannelModel;
     const listeners = CacheService.get("listeners");
-    if(channelOne === undefined || channelDance === undefined || channelTrap === undefined) {
+    if(channelOne === undefined) {
       return res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
     }
     if (listeners === undefined) {
@@ -225,7 +224,6 @@ export namespace ChannelController {
         return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
       }
 
-      AzuracastService.getStationInfos("one");
       return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
     }
   }

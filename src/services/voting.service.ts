@@ -1,7 +1,5 @@
 import CacheManager from "fast-node-cache";
-import { VoteModel, VotingModel, VoteSongModel } from "../models/voting.model";
-import { ArtworkService } from "./artwork.service";
-import { AzuracastService } from "./azuracast.service";
+import { VoteModel, VotingModel } from "../models/voting.model";
 import { LogService } from "./log.service";
 import { RedisService } from "./redis.service";
 
@@ -44,7 +42,7 @@ export namespace VotingService {
     export function startVoting() {
         LogService.logInfo("The voting has been started.");
         RedisService.clear();
-        AzuracastService.getMedia().then((mediaArray) => {
+        /*AzuracastService.getMedia().then((mediaArray) => {
             const result: VoteSongModel[] = [];
             const newcomer = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.newcomer")).length !== 0);
             const charts = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.charts")).length !== 0);
@@ -94,7 +92,7 @@ export namespace VotingService {
             cache.set("voting", voting, voting.closing_at-new Date().getTime());
         }).catch((err) => {
             LogService.logError("Error while reading azuracast media list.");
-        });
+        });*/
     }
 
     export function addVote(ip: string, id: number) {
@@ -130,12 +128,12 @@ export namespace VotingService {
         if(voting === undefined) return;
         if(voting.closed) return;
         voting.closed = true;
-        const items = voting.items.slice(0, 5);
+        /*const items = voting.items.slice(0, 5);
         const jingles = ["jingles/voting/place5.mp3", "jingles/voting/place4.mp3", "jingles/voting/place3.mp3", "jingles/voting/place2.mp3", "jingles/voting/place1.mp3"];
         AzuracastService.deleteQueue().then(() => {
             const songs = [jingles[4], items[4].filePath, jingles[3], items[3].filePath, jingles[2], items[2].filePath, jingles[1], items[1].filePath, jingles[0], items[0].filePath];
             AzuracastService.requestSongs(songs);
-        });
+        });*/
         setTimeout(() => {
             VotingService.startVoting();
         }, (voting.ending_at-new Date().getTime()));

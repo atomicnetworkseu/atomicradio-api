@@ -13,24 +13,23 @@ import channel from "./routers/channel.router";
 import weather from "./routers/weather.router";
 import card from "./routers/card.router";
 import voting from "./routers/voting.router";
-import { AzuracastService } from "./services/azuracast.service";
-import { ListenerService } from "./services/listener.service";
 import { LogService } from "./services/log.service";
 import { SocketService } from "./services/socket.service";
 import { RateLimiterService } from "./services/ratelimiter.service";
-import { VotingService } from "./services/voting.service";
+import { ChannelService } from "./services/channel.service";
 
 const app = express();
 const httpServer = new http.Server(app);
 SocketService.init(httpServer);
 
 dotenv.config();
-AzuracastService.getStationInfos("one");
+/*AzuracastService.getStationInfos("one");
 AzuracastService.getStationInfos("dance");
 AzuracastService.getStationInfos("trap");
-ListenerService.requestListener();
+ListenerService.requestListener();*/
+ChannelService.getStationInfos("atr.one");
 
-VotingService.loadVoting();
+// VotingService.loadVoting();
 
 morgan.token("host", (req: express.Request, res: express.Response) => {
   return req.hostname;

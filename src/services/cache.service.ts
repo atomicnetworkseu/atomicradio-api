@@ -1,6 +1,5 @@
 import CacheManager from "fast-node-cache";
-import { AzuracastService } from "./azuracast.service";
-import { ListenerService } from "./listener.service";
+import { ChannelService } from "./channel.service";
 
 const cache = new CacheManager({
   memoryOnly: true,
@@ -22,9 +21,9 @@ const webSocketCache = new CacheManager({
 cache.on("outdated", (name: string, data?: any) => {
   if (name.startsWith("channel-")) {
     const channelId = name.split("-");
-    AzuracastService.getStationInfos(channelId[1]);
+    ChannelService.getStationInfos(channelId[1]);
   } else if (name.startsWith("listeners")) {
-    ListenerService.requestListener();
+    // ListenerService.requestListener();
   }
 });
 
