@@ -11,40 +11,34 @@ export namespace ChannelService {
 
     export function getStationInfos(channelId: string) {
         return new Promise((resolve, reject) => {
-            RadioBossService.getPlayBackInfo().then((playBackInfo) => {
-                getCurrentSong().then((currentSong) => {
-                    getHistory().then((history) => {
-                        getSchedule().then((schedule) => {
-                            if(channelId === "atr.one") {
-                                getLive().then((live) => {
-                                    const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+            try {
+                RadioBossService.getPlayBackInfo().then((playBackInfo) => {
+                    getCurrentSong().then((currentSong) => {
+                        getHistory().then((history) => {
+                            getSchedule().then((schedule) => {
+                                if(channelId === "atr.one") {
+                                    getLive().then((live) => {
+                                        const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                                        if(live.is_live) {
+                                            CacheService.set("channel-" + channelId, channelInfo, 10000);
+                                        } else {
+                                            CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                        }
+                                        resolve(channelInfo);
+                                    });
+                                } else {
+                                    const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
                                     CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
                                     resolve(channelInfo);
-                                }).catch(() => {
-                                    CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
-                                    LogService.logError("Error while reading schedule informations. (" + channelId + ")");
-                                });
-                            } else {
-                                const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
-                                CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
-                                resolve(channelInfo);
-                            }
-                        }).catch(() => {
-                            CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
-                            LogService.logError("Error while reading schedule informations. (" + channelId + ")");
+                                }
+                            });
                         });
-                    }).catch(() => {
-                        CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
-                        LogService.logError("Error while reading history informations. (" + channelId + ")");
                     });
-                }).catch(() => {
-                    CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
-                    LogService.logError("Error while reading song informations. (" + channelId + ")");
                 });
-            }).catch(() => {
+            } catch(err) {
                 CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
                 LogService.logError("Error while reading radioboss informations. (" + channelId + ")");
-            });
+            }
         });
     }
 
