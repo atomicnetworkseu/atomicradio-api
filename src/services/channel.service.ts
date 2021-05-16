@@ -1,9 +1,10 @@
-import { ChannelModel } from "../models/channel.model";
+import { ChannelModel, LiveModel } from "../models/channel.model";
 import { SongModel } from "../models/song.model";
 import { CacheService } from "./cache.service";
 import { RadioBossService } from "../services/radioboss.service";
 import { LogService } from "./log.service";
 import { ArtworkService } from "./artwork.service";
+import { AzuracastService } from "./azuracast.service";
 
 export namespace ChannelService {
 
@@ -13,10 +14,20 @@ export namespace ChannelService {
                 getCurrentSong().then((currentSong) => {
                     getHistory().then((history) => {
                         getSchedule().then((schedule) => {
-                            const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live: null, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
-                            console.log(channelInfo.song.end_at.getTime()-new Date().getTime());
-                            CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
-                            resolve(channelInfo);
+                            if(channelId === "atr.one") {
+                                getLive().then((live) => {
+                                    const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                                    CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                    resolve(channelInfo);
+                                }).catch(() => {
+                                    CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
+                                    LogService.logError("Error while reading schedule informations. (" + channelId + ")");
+                                });
+                            } else {
+                                const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                                CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                resolve(channelInfo);
+                            }
                         }).catch(() => {
                             CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
                             LogService.logError("Error while reading schedule informations. (" + channelId + ")");
@@ -131,5 +142,19 @@ export namespace ChannelService {
         const split = path.split("azuracast\\")[1];
         if(split === undefined) return null;
         return "#" + split.split("\\")[0].toUpperCase();
+    }
+
+    export function getLive(): Promise<LiveModel> {
+        return new Promise((resolve, reject) => {
+            AzuracastService.getLive().then((liveData) => {
+                let live: LiveModel;
+                if(liveData.broadcast_start === null) {
+                    live = { is_live: liveData.is_live, streamer: null, start_at: null }
+                } else {
+                    live = { is_live: liveData.is_live, streamer: liveData.streamer_name, start_at: new Date(liveData.broadcast_start) };
+                }
+                resolve(live);
+            });
+        });
     }
 }

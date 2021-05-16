@@ -17,8 +17,9 @@ export interface DescriptionModel {
 }
 
 export interface LiveModel {
-    is_live: string,
-    streamer: string
+    is_live: boolean,
+    streamer: string,
+    start_at: Date
 }
 
 export interface StreamsModel {
