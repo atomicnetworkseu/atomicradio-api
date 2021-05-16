@@ -5,6 +5,7 @@ import { RadioBossService } from "../services/radioboss.service";
 import { LogService } from "./log.service";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
+import { MAirListService } from "./mairlist.service";
 
 export namespace ChannelService {
 
@@ -49,12 +50,21 @@ export namespace ChannelService {
 
     export function getCurrentSong(): Promise<SongModel> {
         return new Promise((resolve, reject) => {
+            let song: SongModel;
+            if(CacheService.get("channel-atr.one")) {
+                const channel = CacheService.get("channel-atr.one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+                    song = MAirListService.getCurrentSong();
+                    resolve(song);
+                    return;
+                }
+            }
             RadioBossService.getPlayBackInfo().then((value) => {
                 RadioBossService.getCurrentArtwork().then((imageResponse) => {
                     ArtworkService.saveArtworks(value.Info.CurrentTrack.TRACK, imageResponse).then((artworks) => {
                         const start_at = new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED);
                         const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
-                        const song: SongModel = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks };
+                        song = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks };
                         resolve(song);
                     });
                 });
@@ -64,8 +74,16 @@ export namespace ChannelService {
 
     export function getHistory(): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
+            let history: SongModel[] = [];
+            if(CacheService.get("channel-atr.one")) {
+                const channel = CacheService.get("channel-atr.one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+                    history = MAirListService.getHistory();
+                    resolve(history);
+                    return;
+                }
+            }
             RadioBossService.getLastPlayed().then((value) => {
-                const history: SongModel[] = [];
                 value.LastPlayed.TRACK.shift();
                 value.LastPlayed.TRACK.forEach((last) => {
                     ArtworkService.getArtworks(last.FILENAME).then((artworks) => {
@@ -79,7 +97,6 @@ export namespace ChannelService {
                 });
                 resolve(history);
             }).catch((err) => {
-                const history: SongModel[] = [];
                 resolve(history);
             });
         });
@@ -87,9 +104,17 @@ export namespace ChannelService {
 
     export function getSchedule(): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
+            let schedule: SongModel[] = [];
+            if(CacheService.get("channel-atr.one")) {
+                const channel = CacheService.get("channel-atr.one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+                    schedule = MAirListService.getSchedule();
+                    resolve(schedule);
+                    return;
+                }
+            }
             RadioBossService.getPlayBackInfo().then((playBack) => {
                 RadioBossService.getPlaylist().then((value) => {
-                    const schedule: SongModel[] = [];
                     value.Playlist.TRACK.splice(0, Number(playBack.Info.Playback.playlistpos));
                     for(const queue of value.Playlist.TRACK) {
                         if(schedule.length < 5) {
@@ -101,7 +126,6 @@ export namespace ChannelService {
                     }
                     resolve(schedule);
                 }).catch((err) => {
-                    const schedule: SongModel[] = [];
                     resolve(schedule);
                 });
             });

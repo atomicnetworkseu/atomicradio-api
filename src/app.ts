@@ -27,10 +27,6 @@ connect("mongodb://localhost/atomicradio-api", { useNewUrlParser: true, useUnifi
 SocketService.init(httpServer);
 
 dotenv.config();
-/*AzuracastService.getStationInfos("one");
-AzuracastService.getStationInfos("dance");
-AzuracastService.getStationInfos("trap");
-ListenerService.requestListener();*/
 ChannelService.getStationInfos("atr.one");
 
 // VotingService.loadVoting();

@@ -225,7 +225,7 @@ export namespace ChannelController {
         return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
       }
 
-      ChannelService.getStationInfos("channel-atr.one");
+      ChannelService.getStationInfos("atr.one");
       return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
     }
   }
