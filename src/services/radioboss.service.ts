@@ -24,9 +24,9 @@ export namespace RadioBossService {
         });
     }
 
-    export function getPlaylist(offset: number): Promise<Playlist> {
+    export function getPlaylist(): Promise<Playlist> {
         return new Promise((resolve, reject) => {
-            axios.get(`http://127.0.0.1:9000/?pass=RoaWrgCUhX&action=getplaylist&from=${offset}`).then((response) => {
+            axios.get(`http://127.0.0.1:9000/?pass=RoaWrgCUhX&action=getplaylist2`).then((response) => {
                 const data = parser.toJson(response.data);
                 const playlist = JSON.parse(data) as Playlist;
                 resolve(playlist);

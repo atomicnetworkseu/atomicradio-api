@@ -41,6 +41,7 @@ export interface Playback {
 export interface Track {
     ARTIST: string,
     TITLE: string,
+    CASTTITLE?: string,
     ALBUM: string,
     YEAR: string,
     GENRE: string,
