@@ -15,27 +15,33 @@ const cache = new CacheManager({
 
 export namespace MAirListService {
     export function updateMetaData(data: any) {
-        const liveData: { song: { artist: string; title: string; start_at: Date; end_at: Date; duration: number; artworks: {} }; schedule: any[]; history: any[]; } = {
-            song: { artist: "", title: "", start_at: null, end_at: null, duration: null, artworks: {} },
+        const liveData: { song: SongModel; schedule: SongModel[]; history: SongModel[]; } = {
+            song: { artist: "", title: "", playlist: null, start_at: null, end_at: null, duration: null, artworks: null },
             schedule: [],
             history: []
         };
 
+        if(cache.get("live_metadata")) {
+            liveData.history = cache.get("live_metadata").history;
+        }
+
         liveData.song.artist = String(data.artist).toUpperCase();
         liveData.song.title = String(data.title).toUpperCase();
         liveData.song.start_at = new Date(Number(MAirListService.convertStartToSeconds(data.start_at)) * 1000);
-        liveData.song.end_at = new Date((MAirListService.convertStartToSeconds(data.start_at)+Number(MAirListService.convertDurationToSeconds(data.duration)) * 1000));
+        liveData.song.end_at = new Date(liveData.song.start_at.getTime() + Number(MAirListService.convertDurationToSeconds(data.duration) * 1000) + 10000);
         liveData.song.duration = MAirListService.convertDurationToSeconds(data.duration);
         liveData.song.artworks = MAirListService.saveArtworks(data.artist + " - " + data.title, data.artwork);
+
+        liveData.history.push(liveData.song);
 
         const schedule = JSON.parse(data.schedule);
         for (const item of schedule) {
             liveData.schedule.push({
                 artist: String(item.artist).toUpperCase(),
                 title: String(item.title).toUpperCase(),
-                playlist: "",
+                playlist: null,
                 start_at: new Date(Number(MAirListService.convertStartToSeconds(item.start_at)) * 1000),
-                end_at: new Date((MAirListService.convertStartToSeconds(item.start_at)+Number(MAirListService.convertDurationToSeconds(item.duration)) * 1000)),
+                end_at: new Date(new Date(Number(MAirListService.convertStartToSeconds(item.start_at)) * 1000).getTime() + Number(MAirListService.convertDurationToSeconds(item.duration) * 1000) + 10000),
                 duration: MAirListService.convertDurationToSeconds(item.duration),
                 artworks: MAirListService.saveArtworks(item.artist + " - " + item.title, item.artwork)
             });
@@ -123,7 +129,7 @@ export namespace MAirListService {
             return {
                 artist: "LISTEN TO THE DIFFERENCE!",
                 title: "ATOMICRADIO",
-                playlist: "",
+                playlist: null,
                 start_at: null,
                 end_at: null,
                 duration: null,
@@ -154,7 +160,16 @@ export namespace MAirListService {
         if(metadata === undefined) {
             return [];
         }
-        return metadata.history;
+        const history = [...metadata.history];
+        history.reverse();
+        const result = [] as SongModel[];
+        for(const last of history) {
+            if(result.length < 11) {
+                result.push(last);
+            }
+        }
+        result.shift();
+        return result;
     }
 
     export function convertStartToSeconds(start_at: number) {
