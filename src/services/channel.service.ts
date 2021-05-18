@@ -169,7 +169,7 @@ export namespace ChannelService {
                 if(liveData.broadcast_start === null) {
                     live = { is_live: liveData.is_live, streamer: null, start_at: null }
                 } else {
-                    live = { is_live: liveData.is_live, streamer: liveData.streamer_name, start_at: new Date(liveData.broadcast_start) };
+                    live = { is_live: liveData.is_live, streamer: liveData.streamer_name, start_at: new Date(Number(liveData.broadcast_start)*1000) };
                 }
                 resolve(live);
             });
