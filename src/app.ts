@@ -79,6 +79,10 @@ app.use("*", (req, res: any, next: () => void) => {
   return res.status(404).json({ code: 404, messsage: randomMessage[Math.floor(Math.random() * randomMessage.length)] });
 });
 
+app.use((error: any, req: express.Request, res: express.Response, next: () => void) => {
+  res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
+});
+
 const port = process.env.PORT;
 httpServer
   .listen(port, () => {
