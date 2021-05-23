@@ -15,14 +15,12 @@ export namespace VotingController {
         }
 
         const result: VoteSongModel[] = [];
-        const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
-        const ip = String(xForwardedFor).split(",")[0].trim();
-        if(ip === "" || ip === undefined) {
+        if(req.requestIp === "" || req.requestIp === undefined) {
             return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
         }
         for(const item of voting.items) {
             const song: VoteSongModel = { id: item.id, unique_id: item.unique_id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
-            if(VotingService.hasVoted(ip, item.id)) {
+            if(VotingService.hasVoted(req.requestIp, item.id)) {
                 song.voted = true;
             } else {
                 song.voted = false;
@@ -42,6 +40,10 @@ export namespace VotingController {
         }
         const id = Number(req.query.id);
 
+        if(req.requestIp === "" || req.requestIp === undefined) {
+            return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
+        }
+
         const voting = VotingService.getCache().get("voting") as VotingModel;
         if(voting.items.length === 0) {
             return res.status(404).json({ code: 404, message: "There are currently no songs in the voting. Try again later." });
@@ -50,12 +52,10 @@ export namespace VotingController {
             return res.status(403).json({ code: 403, message: "Voting has been closed. Try again later." });
         }
 
-        const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
-        const ip = String(xForwardedFor).split(",")[0].trim();
-        if(VotingService.hasVoted(ip, id)) {
+        if(VotingService.hasVoted(req.requestIp, id)) {
             return res.status(500).json({ code: 500, message: "You have already voted for this song." });
         }
-        const song = VotingService.addVote(ip, id);
+        const song = VotingService.addVote(req.requestIp, id);
         if(song === undefined) {
             return res.status(404).json({ code: 404, message: "The song with the given id was not found." });
         }

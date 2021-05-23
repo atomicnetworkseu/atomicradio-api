@@ -7,17 +7,15 @@ import { WeatherModel } from "../models/weather.model";
 
 export namespace WeatherController {
   export async function getWeatherData(req: Request, res: Response) {
-    const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
-    const ip = String(xForwardedFor).split(",")[0].trim();
-    if(ip === "" || ip === undefined) {
-      return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
-    }
     try {
       if (req.query.lat && req.query.lon) {
         const weather = await requestWeatherData(req.query.lat, req.query.lon);
         res.status(200).json(weather);
       } else {
-        const ipInfo = await requestIpInformations(ip);
+        if(req.requestIp === "" || req.requestIp === undefined) {
+          return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
+        }
+        const ipInfo = await requestIpInformations(req.requestIp);
         const country = ipInfo.country;
         const city = ipInfo.city;
         if (city === undefined || city === null || country === undefined || country === null) {

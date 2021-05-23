@@ -36,9 +36,7 @@ morgan.token("host", (req: express.Request, res: express.Response) => {
 });
 
 morgan.token("ip", (req: express.Request, res: express.Response) => {
-  const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
-  const ip = String(xForwardedFor).split(",")[0].trim();
-  return anonymize(ip);
+  return anonymize(req.requestIp);
 });
 
 morgan.token("date", (req: express.Request, res: express.Response) => {
@@ -53,6 +51,12 @@ app.use(bodyParser.json({ limit: '16mb' }));
 app.use(cookieParser());
 app.engine("handlebars", expressHandlebars({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
+app.use((req, res, next) => {
+  const xForwardedFor = req.headers["x-forwarded-for"] || req.ips;
+  const ip = String(xForwardedFor).split(",")[0].trim();
+  req.requestIp = ip;
+  next();
+});
 app.use(morgan(` :date[iso] | REQUEST | :ip - :method ":url" :status :res[content-length] - :response-time ms`));
 
 app.get("/", (req, res: any, next: () => void) => {
@@ -80,6 +84,7 @@ app.use("*", (req, res: any, next: () => void) => {
 });
 
 app.use((error: any, req: express.Request, res: express.Response, next: () => void) => {
+  console.log(error);
   res.status(500).json({ code: 500, message: "A problem with our API has occurred. Try again later." });
 });
 
