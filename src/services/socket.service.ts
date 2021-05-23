@@ -11,10 +11,13 @@ export namespace SocketService {
     io = new socket.Server(httpServer, { cors: { origin: "*" } });
     io.on("connection", (client: any) => {
       LogService.logInfo(`Client connected [id=${client.id}]`);
-      client.emit("one", CacheService.get("channel-one"));
-      client.emit("dance", CacheService.get("channel-dance"));
-      client.emit("trap", CacheService.get("channel-trap"));
-      client.emit("listeners", CacheService.get("listeners").all);
+      client.emit("one", CacheService.get("channel-atr.one"));
+      client.emit("dance", CacheService.get("channel-atr.dance"));
+      client.emit("trap", CacheService.get("channel-atr.trap"));
+      client.emit("channels", CacheService.get("channel-atr.one"));
+      client.emit("channels", CacheService.get("channel-atr.dance"));
+      client.emit("channels", CacheService.get("channel-atr.trap"));
+      // client.emit("listeners", CacheService.get("listeners").all);
       client.on("disconnect", () => {
         LogService.logInfo(`Client gone [id=${client.id}]`);
       });
@@ -25,9 +28,9 @@ export namespace SocketService {
       const id = makeWebSocketId();
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
       CacheService.getWebSocketCache().set(id, webSocket);
-      webSocket.send(JSON.stringify(CacheService.get("channel-one")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-dance")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-trap")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-atr.one")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-atr.dance")));
+      webSocket.send(JSON.stringify(CacheService.get("channel-atr.trap")));
       webSocket.onclose = () => {
         CacheService.getWebSocketCache().set(id, undefined);
         LogService.logInfo(`PreMiD disconnected over websockets. [id=${id}]`);
