@@ -9,22 +9,30 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: Running tslint 🔨
+    strategy:
+      matrix:
+        node-version: [14.x, 15.x]
+    name: Running tslint ${{ matrix.node-version }} 🔨
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: 14.x
-    - run: npm install
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm install
     - run: npm run lint
   build:
     runs-on: ubuntu-latest
-    name: Running build 🌸
+    strategy:
+      matrix:
+        node-version: [14.x, 15.x]
+    name: Running build ${{ matrix.node-version }} 🌸
     needs: lint
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: 14.x
-    - run: npm install
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm install
     - run: npm run build
