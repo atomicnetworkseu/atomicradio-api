@@ -1,6 +1,8 @@
 import CacheManager from "fast-node-cache";
-import { VoteModel, VotingModel } from "../models/voting.model";
+import { VoteModel, VoteSongModel, VotingModel } from "../models/voting.model";
+import { ArtworkService } from "./artwork.service";
 import { LogService } from "./log.service";
+import { RadioBossService } from "./radioboss.service";
 import { RedisService } from "./redis.service";
 
 const cache = new CacheManager({
@@ -21,11 +23,11 @@ export namespace VotingService {
 
     export function loadVoting() {
         RedisService.get("voting").then((voting: VotingModel) => {
-            if(voting.closing_at <= new Date().getTime()) {
+            if(voting.closing_at.getTime() <= new Date().getTime()) {
                 startVoting();
                 return;
             }
-            cache.set("voting", voting, voting.closing_at-new Date().getTime());
+            cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
             LogService.logInfo("The voting has been loaded.");
             RedisService.get("votes").then((votes: VoteModel[]) => {
                 if(votes === null || votes === undefined) {
@@ -42,57 +44,59 @@ export namespace VotingService {
     export function startVoting() {
         LogService.logInfo("The voting has been started.");
         RedisService.clear();
-        /*AzuracastService.getMedia().then((mediaArray) => {
+        RadioBossService.getPlaylist().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            const newcomer = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.newcomer")).length !== 0);
-            const charts = mediaArray.filter(x => (x.playlists.filter((x1: any) => x1.name === "voting.charts")).length !== 0);
+            const newcomer = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("hitshouse"));
+            const charts = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("hitsonly"));
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*newcomer.length);
                 const media = newcomer[media_id];
                 newcomer.splice(media_id, 1);
-                result.push({
-                    id: i,
-                    unique_id: media.media.id,
-                    artist: media.media.artist,
-                    title: media.media.title,
-                    type: "#NEWCOMER",
-                    filePath: media.path,
-                    votes: 0,
-                    voted: null,
-                    preview_url: "",
-                    artworks: ArtworkService.getArtworks(media.media.id, "http://" + process.env.AZURACAST_API + media.media.art)
+                ArtworkService.getArtworks(media.FILENAME).then((artworks) => {
+                    result.push({
+                        id: result.length + 1,
+                        artist: media.CASTTITLE.split(" - ")[0],
+                        title: media.CASTTITLE.split(" - ")[1],
+                        type: "#NEWCOMER",
+                        filePath: media.FILENAME,
+                        votes: 0,
+                        voted: null,
+                        preview_url: "",
+                        artworks
+                    });
                 });
             }
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*charts.length);
                 const media = charts[media_id];
                 charts.splice(media_id, 1);
-                result.push({
-                    id: i+15,
-                    unique_id: media.media.id,
-                    artist: media.media.artist,
-                    title: media.media.title,
-                    type: "#CHARTS",
-                    filePath: media.path,
-                    votes: 0,
-                    voted: null,
-                    preview_url: "",
-                    artworks: ArtworkService.getArtworks(media.media.id, "http://" + process.env.AZURACAST_API + media.media.art)
+                ArtworkService.getArtworks(media.FILENAME).then((artworks) => {
+                    result.push({
+                        id: result.length + 1,
+                        artist: media.CASTTITLE.split(" - ")[0],
+                        title: media.CASTTITLE.split(" - ")[1],
+                        type: "#CHARTS",
+                        filePath: media.FILENAME,
+                        votes: 0,
+                        voted: null,
+                        preview_url: "",
+                        artworks
+                    });
                 });
             }
             const endingDate = new Date();
             endingDate.setDate(endingDate.getDate() + (7 + 5 - endingDate.getDay() - 1) % 7 +1);
             const voting: VotingModel = {
                 items: result,
-                created_at: new Date().getTime(),
-                closing_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18).getTime(),
-                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30).getTime(),
+                created_at: new Date(),
+                closing_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18),
+                ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30),
                 closed: false
             };
-            cache.set("voting", voting, voting.closing_at-new Date().getTime());
+            cache.set("voting", voting, 10000);
         }).catch((err) => {
             LogService.logError("Error while reading azuracast media list.");
-        });*/
+        });
     }
 
     export function addVote(ip: string, id: number) {
@@ -111,7 +115,7 @@ export namespace VotingService {
         }
         song.votes += 1;
         voting.items.sort((a, b) => {return b.votes-a.votes});
-        cache.set("voting", voting, voting.closing_at-new Date().getTime());
+        cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
         return song;
     }
 
@@ -128,15 +132,12 @@ export namespace VotingService {
         if(voting === undefined) return;
         if(voting.closed) return;
         voting.closed = true;
-        /*const items = voting.items.slice(0, 5);
-        const jingles = ["jingles/voting/place5.mp3", "jingles/voting/place4.mp3", "jingles/voting/place3.mp3", "jingles/voting/place2.mp3", "jingles/voting/place1.mp3"];
-        AzuracastService.deleteQueue().then(() => {
-            const songs = [jingles[4], items[4].filePath, jingles[3], items[3].filePath, jingles[2], items[2].filePath, jingles[1], items[1].filePath, jingles[0], items[0].filePath];
-            AzuracastService.requestSongs(songs);
-        });*/
+        const items = voting.items.slice(0, 5);
+        items.reverse();
+        items.forEach((x) => RadioBossService.requestSong(x.filePath));
         setTimeout(() => {
             VotingService.startVoting();
-        }, (voting.ending_at-new Date().getTime()));
+        }, (voting.ending_at.getTime()-new Date().getTime()));
     }
 
     export function getCache() {

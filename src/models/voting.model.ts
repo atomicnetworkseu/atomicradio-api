@@ -3,14 +3,13 @@ import { ArtworksModel } from "./artwork.model";
 export interface VotingModel {
     items: VoteSongModel[],
     closed: boolean,
-    created_at: number,
-    closing_at: number,
-    ending_at: number
+    created_at: Date,
+    closing_at: Date,
+    ending_at: Date
 }
 
 export interface VoteSongModel {
     id: number,
-    unique_id: string,
     artist: string,
     title: string,
     type: string,

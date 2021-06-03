@@ -42,6 +42,14 @@ export namespace RadioBossService {
         });
     }
 
+    export function requestSong(filename: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            axios.get("http://127.0.0.1:9000/?pass=RoaWrgCUhX&action=songrequest&filename=" + encodeURIComponent(filename) + "&message=" + encodeURIComponent("REQUESTED SONG BY API")).then((response) => {
+                resolve(response);
+            });
+        });
+    }
+
     export function convertDurationToMs(duration: string): number {
         let minutes = duration.split(":")[0];
         let seconds = duration.split(":")[1];

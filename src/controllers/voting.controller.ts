@@ -19,7 +19,7 @@ export namespace VotingController {
             return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
         }
         for(const item of voting.items) {
-            const song: VoteSongModel = { id: item.id, unique_id: item.unique_id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
+            const song: VoteSongModel = { id: item.id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
             if(VotingService.hasVoted(req.requestIp, item.id)) {
                 song.voted = true;
             } else {
