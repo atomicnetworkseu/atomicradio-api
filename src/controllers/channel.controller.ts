@@ -8,12 +8,12 @@ import { ChannelService } from "../services/channel.service";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
-    const channelOne = CacheService.get("channel-atr.one") as ChannelModel;
-    const channelDance = CacheService.get("channel-atr.dance") as ChannelModel;
-    const channelTrap = CacheService.get("channel-atr.trap") as ChannelModel;
+    const channelOne = CacheService.get("channel-one") as ChannelModel;
+    const channelDance = CacheService.get("channel-dance") as ChannelModel;
+    const channelTrap = CacheService.get("channel-trap") as ChannelModel;
     const listeners = CacheService.get("listeners");
-    if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-      return CacheService.get("channel-atr.one");
+    if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+      return CacheService.get("channel-one");
     }
     if (listeners === undefined) {
       return res
@@ -33,22 +33,22 @@ export namespace ChannelController {
 
     switch (channelId) {
       case "one":
-        if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-          return CacheService.get("channel-atr.one");
+        if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+          return CacheService.get("channel-one");
         }
-        const channelOne = CacheService.get("channel-atr.one") as ChannelModel;
+        const channelOne = CacheService.get("channel-one") as ChannelModel;
         return res.status(200).json(channelOne);
       case "dance":
-        if(CacheService.get("channel-atr.dance") === undefined || CacheService.get("channel-atr.dance").code !== undefined) {
-          return CacheService.get("channel-atr.dance");
+        if(CacheService.get("channel-dance") === undefined || CacheService.get("channel-dance").code !== undefined) {
+          return CacheService.get("channel-dance");
         }
-        const channelDance = CacheService.get("channel-atr.dance") as ChannelModel;
+        const channelDance = CacheService.get("channel-dance") as ChannelModel;
         return res.status(200).json(channelDance);
       case "trap":
-        if(CacheService.get("channel-atr.trap") === undefined || CacheService.get("channel-atr.trap").code !== undefined) {
-          return CacheService.get("channel-atr.trap");
+        if(CacheService.get("channel-trap") === undefined || CacheService.get("channel-trap").code !== undefined) {
+          return CacheService.get("channel-trap");
         }
-        const channelTrap = CacheService.get("channel-atr.trap") as ChannelModel;
+        const channelTrap = CacheService.get("channel-trap") as ChannelModel;
         return res.status(200).json(channelTrap);
       default:
         return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -64,10 +64,10 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr." + channelId) as ChannelModel;
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.song);
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -83,11 +83,11 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
         console.log("test");
-        return CacheService.get("channel-atr.one");
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr." + channelId) as ChannelModel;
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.description);
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -103,10 +103,10 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr." + channelId) as ChannelModel;
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.schedule);
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -122,10 +122,10 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr." + channelId) as ChannelModel;
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.history);
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -141,10 +141,10 @@ export namespace ChannelController {
     }
 
     if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr." + channelId) as ChannelModel;
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json({ listeners: channel.listeners });
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
@@ -153,10 +153,10 @@ export namespace ChannelController {
 
   export function getChannelLive(req: Request, res: Response) {
     if (!req.params.id) {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr.one") as ChannelModel;
+      const channel = CacheService.get("channel-one") as ChannelModel;
       return res.status(200).json(channel.live);
     }
 
@@ -168,13 +168,13 @@ export namespace ChannelController {
     }
 
     if (channelId === "one") {
-      if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-        return CacheService.get("channel-atr.one");
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
       }
-      const channel = CacheService.get("channel-atr.one") as ChannelModel;
+      const channel = CacheService.get("channel-one") as ChannelModel;
       return res.status(200).json(channel.live);
     } else if (channelId === "dance" || channelId === "trap") {
-      return res.status(500).json({ code: 500, message: "Only our channel 'channel-atr.one' has live metadata." });
+      return res.status(500).json({ code: 500, message: "Only our channel 'channel-one' has live metadata." });
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
     }
@@ -190,10 +190,10 @@ export namespace ChannelController {
       const jtwToken = Buffer.from(base64Token.split(":")[1], "base64").toString("utf8");
       try {
         const token: any = JWT.verify(jtwToken, process.env.STREAMER_TOKEN);
-        if(CacheService.get("channel-atr.one") === undefined || CacheService.get("channel-atr.one").code !== undefined) {
-          return CacheService.get("channel-atr.one");
+        if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+          return CacheService.get("channel-one");
         }
-        const channel = CacheService.get("channel-atr.one") as ChannelModel;
+        const channel = CacheService.get("channel-one") as ChannelModel;
         if(channel.live.is_live) {
           if(token.name !== channel.live.streamer) {
             LogService.logWarn(token.name + " has tried to transmit metadata. Metadata blocked!");
@@ -201,7 +201,7 @@ export namespace ChannelController {
           }
         }
 
-        LogService.logInfo("New metadata obtained for channel-atr.one by " + token.name);
+        LogService.logInfo("New metadata obtained for channel-one by " + token.name);
         MAirListService.updateMetaData(req.body);
         return res.status(200).json({ code: 200, message: "Hello Streamer!" });
       } catch(err) {
@@ -226,7 +226,7 @@ export namespace ChannelController {
         return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
       }
 
-      ChannelService.getStationInfos("atr.one");
+      ChannelService.getStationInfos("one");
       return res.status(200).json({ code: 200, message: "Hello Azuracast!" });
     }
   }

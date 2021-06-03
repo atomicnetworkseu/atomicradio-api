@@ -14,11 +14,14 @@ export namespace ChannelService {
             try {
                 RadioBossService.getPlayBackInfo().then((playBackInfo) => {
                     getCurrentSong().then((currentSong) => {
+                        if(playBackInfo.Info.CurrentTrack.TRACK.FILENAME.includes("brandings")) {
+                            return;
+                        }
                         getHistory().then((history) => {
                             getSchedule().then((schedule) => {
-                                if(channelId === "atr.one") {
+                                if(channelId === "one") {
                                     getLive().then((live) => {
-                                        const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                                        const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
                                         if(live.is_live) {
                                             CacheService.set("channel-" + channelId, channelInfo, 10000);
                                         } else {
@@ -45,9 +48,9 @@ export namespace ChannelService {
     export function getCurrentSong(): Promise<SongModel> {
         return new Promise((resolve, reject) => {
             let song: SongModel;
-            if(CacheService.get("channel-atr.one")) {
-                const channel = CacheService.get("channel-atr.one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+            if(CacheService.get("channel-one")) {
+                const channel = CacheService.get("channel-one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
                     song = MAirListService.getCurrentSong();
                     resolve(song);
                     return;
@@ -69,9 +72,9 @@ export namespace ChannelService {
     export function getHistory(): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
             let history: SongModel[] = [];
-            if(CacheService.get("channel-atr.one")) {
-                const channel = CacheService.get("channel-atr.one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+            if(CacheService.get("channel-one")) {
+                const channel = CacheService.get("channel-one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
                     history = MAirListService.getHistory();
                     resolve(history);
                     return;
@@ -85,7 +88,9 @@ export namespace ChannelService {
                             const start_at = new Date(last.STARTTIME);
                             const end_at = new Date(new Date(last.STARTTIME).getTime()+RadioBossService.convertDurationToMs(last.DURATION));
                             const song: SongModel = { artist: last.ARTIST, title: last.TITLE, playlist: getPlaylist(last.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(last.DURATION)/1000), artworks };
-                            history.push(song);
+                            if(!last.FILENAME.includes("brandings")) {
+                                history.push(song);
+                            }
                         }
                     });
                 });
@@ -99,9 +104,9 @@ export namespace ChannelService {
     export function getSchedule(): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
             let schedule: SongModel[] = [];
-            if(CacheService.get("channel-atr.one")) {
-                const channel = CacheService.get("channel-atr.one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "atr.one"
+            if(CacheService.get("channel-one")) {
+                const channel = CacheService.get("channel-one") as ChannelModel;
+                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
                     schedule = MAirListService.getSchedule();
                     resolve(schedule);
                     return;
@@ -115,7 +120,9 @@ export namespace ChannelService {
                             const start_at = new Date(new Date().getFullYear() + "-" + (new Date().getMonth()+1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
                             const end_at = new Date(start_at.getTime() + RadioBossService.convertDurationToMs(queue.DURATION));
                             const song: SongModel = { artist: queue.CASTTITLE.split(" - ")[0], title: queue.CASTTITLE.split(" - ")[1], playlist: getPlaylist(queue.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(queue.DURATION)/1000), artworks: ArtworkService.getErrorArtworks() };
-                            schedule.push(song);
+                            if(!queue.FILENAME.includes("brandings")) {
+                                schedule.push(song);
+                            }
                         }
                     }
                     resolve(schedule);
@@ -128,30 +135,34 @@ export namespace ChannelService {
 
     export function getDescription(channelId: string) {
         switch (channelId) {
-          case "atr.one":
+          case "one":
             return {
               de: "Entdecke das beste aus der Musikwelt und sei live dabei wenn sich Newcomer mit Chartlegenden batteln!",
               en: "Discover the best of the music world and be there live when newcomers battle each other with chart legends!"
             };
-          case "atr.dance":
+          case "dance":
             return {
               de: "Immer auf dem aktuellstem Stand über die besten Electrosongs, Mashups und Clubsounds.",
               en: "Always up to date about the best electro songs, mashups and club sounds."
             };
-          case "atr.trap":
+          case "trap":
             return {
               de: "Fühle unsere, auf dich zugeschnittene Musik aus der Trap und Rapwelt zu jeder Uhrzeit, den ganzen Tag.",
               en: "Feel our customized music from the trap and rap world at any time, all day."
+            };
+          default:
+            return {
+              de: "Entdecke das beste aus der Musikwelt und sei live dabei wenn sich Newcomer mit Chartlegenden batteln!",
+              en: "Discover the best of the music world and be there live when newcomers battle each other with chart legends!"
             };
         }
     }
 
     export function getStreamUrls(channelId: string) {
-        const id = channelId.split(".")[1];
         return {
-            highquality: "https://listen.atomicradio.eu/" + id + "/highquality",
-            middlequality: "https://listen.atomicradio.eu/" + id + "/middlequality",
-            lowquality: "https://listen.atomicradio.eu/" + id + "/lowquality"
+            highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
+            middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
+            lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
         };
     }
 

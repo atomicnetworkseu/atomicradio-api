@@ -48,7 +48,7 @@ export namespace MAirListService {
         }
 
         cache.set("live_metadata", liveData);
-        ChannelService.getStationInfos("atr.one");
+        ChannelService.getStationInfos("one");
     }
 
     export function saveArtworks(key: string, base64Image: string) {
