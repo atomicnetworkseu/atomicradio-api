@@ -1,6 +1,6 @@
 import redis from "redis";
 import { LogService } from "./log.service";
-const client = redis.createClient();
+const client = redis.createClient({ host: process.env.REDIS_URL });
 
 export namespace RedisService {
 
