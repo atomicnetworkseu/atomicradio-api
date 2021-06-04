@@ -2,6 +2,7 @@ import CacheManager from "fast-node-cache";
 import { VoteModel, VoteSongModel, VotingModel } from "../models/voting.model";
 import { ArtworkService } from "./artwork.service";
 import { LogService } from "./log.service";
+import { PreviewService } from "./preview.service";
 import { RadioBossService } from "./radioboss.service";
 import { RedisService } from "./redis.service";
 
@@ -71,16 +72,18 @@ export namespace VotingService {
                 const media = newcomer[media_id];
                 newcomer.splice(media_id, 1);
                 ArtworkService.getArtworks(media.FILENAME).then((artworks) => {
-                    result.push({
-                        id: result.length + 1,
-                        artist: media.CASTTITLE.split(" - ")[0],
-                        title: media.CASTTITLE.split(" - ")[1],
-                        type: "#NEWCOMER",
-                        filePath: media.FILENAME,
-                        votes: 0,
-                        voted: null,
-                        preview_url: "",
-                        artworks
+                    PreviewService.getPreview(media).then((preview) => {
+                        result.push({
+                            id: result.length + 1,
+                            artist: media.CASTTITLE.split(" - ")[0],
+                            title: media.CASTTITLE.split(" - ")[1],
+                            type: "#NEWCOMER",
+                            filePath: media.FILENAME,
+                            votes: 0,
+                            voted: null,
+                            preview_url: preview,
+                            artworks
+                        });
                     });
                 });
             }
@@ -89,16 +92,18 @@ export namespace VotingService {
                 const media = charts[media_id];
                 charts.splice(media_id, 1);
                 ArtworkService.getArtworks(media.FILENAME).then((artworks) => {
-                    result.push({
-                        id: result.length + 1,
-                        artist: media.CASTTITLE.split(" - ")[0],
-                        title: media.CASTTITLE.split(" - ")[1],
-                        type: "#CHARTS",
-                        filePath: media.FILENAME,
-                        votes: 0,
-                        voted: null,
-                        preview_url: "",
-                        artworks
+                    PreviewService.getPreview(media).then((preview) => {
+                        result.push({
+                            id: result.length + 1,
+                            artist: media.CASTTITLE.split(" - ")[0],
+                            title: media.CASTTITLE.split(" - ")[1],
+                            type: "#CHARTS",
+                            filePath: media.FILENAME,
+                            votes: 0,
+                            voted: null,
+                            preview_url: preview,
+                            artworks
+                        });
                     });
                 });
             }
