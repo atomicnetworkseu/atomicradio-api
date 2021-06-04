@@ -18,6 +18,7 @@ import { LogService } from "./services/log.service";
 import { SocketService } from "./services/socket.service";
 import { RateLimiterService } from "./services/ratelimiter.service";
 import { ChannelService } from "./services/channel.service";
+import { VotingService } from "./services/voting.service";
 
 const app = express();
 const httpServer = new http.Server(app);
@@ -29,7 +30,7 @@ SocketService.init(httpServer);
 dotenv.config();
 ChannelService.getStationInfos("one");
 
-// VotingService.loadVoting();
+VotingService.loadVoting();
 
 morgan.token("host", (req: express.Request, res: express.Response) => {
   return req.hostname;

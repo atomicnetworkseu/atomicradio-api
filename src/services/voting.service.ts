@@ -46,8 +46,8 @@ export namespace VotingService {
         RedisService.clear();
         RadioBossService.getPlaylist().then((mediaArray) => {
             const result: VoteSongModel[] = [];
-            const newcomer = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("hitshouse"));
-            const charts = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("hitsonly"));
+            const newcomer = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("justhouse"));
+            const charts = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("justhits"));
             for(let i = 1; i < 16; i++) {
                 const media_id = Math.floor(Math.random()*newcomer.length);
                 const media = newcomer[media_id];

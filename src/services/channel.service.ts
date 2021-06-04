@@ -168,7 +168,7 @@ export namespace ChannelService {
 
     export function getPlaylist(path: string) {
         if(path === undefined || path.length === 0) return null;
-        const split = path.split("azuracast\\")[1];
+        const split = path.split(":\\")[1];
         if(split === undefined) return null;
         return "#" + split.split("\\")[0].toUpperCase();
     }
