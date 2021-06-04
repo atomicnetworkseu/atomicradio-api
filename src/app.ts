@@ -29,8 +29,8 @@ SocketService.init(httpServer);
 
 dotenv.config();
 ChannelService.getStationInfos("one");
-// ChannelService.getStationInfos("gaming");
-// ChannelService.getStationInfos("rap");
+ChannelService.getStationInfos("gaming");
+ChannelService.getStationInfos("rap");
 
 VotingService.loadVoting();
 
