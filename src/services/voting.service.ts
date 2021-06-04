@@ -41,11 +41,11 @@ export namespace VotingService {
 
     export function loadVoting() {
         RedisService.get("voting").then((voting: VotingModel) => {
-            if(voting.closing_at.getTime() <= new Date().getTime()) {
+            if(new Date(voting.closing_at).getTime() <= new Date().getTime()) {
                 startVoting();
                 return;
             }
-            cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
+            cache.set("voting", voting, new Date(voting.closing_at).getTime()-new Date().getTime());
             LogService.logInfo("The voting has been loaded.");
             RedisService.get("votes").then((votes: VoteModel[]) => {
                 if(votes === null || votes === undefined) {
@@ -111,9 +111,11 @@ export namespace VotingService {
                 ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30),
                 closed: false
             };
-            cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
+            setTimeout(() => {
+                cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
+            }, 5000);
         }).catch((err) => {
-            LogService.logError("Error while reading azuracast media list.");
+            LogService.logError("Error while reading radioboss media list.");
         });
     }
 
