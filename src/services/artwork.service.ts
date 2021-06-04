@@ -25,6 +25,15 @@ export namespace ArtworkService {
                     response.data.pipe(writer);
 
                     writer.on("finish", () => {
+                        const stats = fs.statSync(`./assets/artworks/${artId}/1000.jpg`);
+                        if(stats.size === 0) {
+                            fs.rm(`./assets/artworks/${artId}/1000.jpg`, (err) => {
+                                if(err) return;
+                                fs.rmdirSync(`./assets/artworks/${artId}`);
+                            });
+                            resolve(getErrorArtworks());
+                            return;
+                        }
                         sharp(`./assets/artworks/${artId}/1000.jpg`)
                             .resize(500, 500)
                             .jpeg({ quality: 100, chromaSubsampling: "4:4:4", progressive: true })
