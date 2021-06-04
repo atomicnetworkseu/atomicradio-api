@@ -8,19 +8,22 @@ import { ChannelService } from "../services/channel.service";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
-    const channelOne = CacheService.get("channel-one") as ChannelModel;
-    const channelDance = CacheService.get("channel-dance") as ChannelModel;
-    const channelTrap = CacheService.get("channel-trap") as ChannelModel;
     const listeners = CacheService.get("listeners");
-    if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-      return CacheService.get("channel-one");
-    }
-    if (listeners === undefined) {
-      return res
-        .status(200)
-        .json({ listeners: { discord: 0, teamspeak: 0, web: 0, all: 0 }, one: channelOne, dance: channelDance, trap: channelTrap });
-    }
-    return res.status(200).json({ listeners, one: channelOne, dance: channelDance, trap: channelTrap });
+    ChannelService.getStations().then((channels) => {
+      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
+        return CacheService.get("channel-one");
+      }
+
+      const result: { listeners: any, channels: ChannelModel[] } = { listeners: null, channels: [] };
+      if(listeners === undefined) {
+        result.listeners = { discord: 0, teamspeak: 0, web: 0, all: 0 };
+      } else {
+        result.listeners = listeners;
+      }
+
+      result.channels = channels;
+      return res.status(200).json(result);
+    });
   }
 
   export function getChannelById(req: Request, res: Response) {

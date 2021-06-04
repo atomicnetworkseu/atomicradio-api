@@ -44,7 +44,7 @@ export namespace VotingService {
     export function startVoting() {
         LogService.logInfo("The voting has been started.");
         RedisService.clear();
-        RadioBossService.getPlaylist().then((mediaArray) => {
+        RadioBossService.getPlaylist("one").then((mediaArray) => {
             const result: VoteSongModel[] = [];
             const newcomer = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("justhouse"));
             const charts = mediaArray.Playlist.TRACK.filter(x => x.FILENAME.includes("justhits"));

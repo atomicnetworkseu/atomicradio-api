@@ -12,13 +12,13 @@ export namespace ChannelService {
     export function getStationInfos(channelId: string) {
         return new Promise((resolve, reject) => {
             try {
-                RadioBossService.getPlayBackInfo().then((playBackInfo) => {
-                    getCurrentSong().then((currentSong) => {
+                RadioBossService.getPlayBackInfo(channelId).then((playBackInfo) => {
+                    getCurrentSong(channelId).then((currentSong) => {
                         if(playBackInfo.Info.CurrentTrack.TRACK.FILENAME.includes("brandings")) {
                             return;
                         }
-                        getHistory().then((history) => {
-                            getSchedule().then((schedule) => {
+                        getHistory(channelId).then((history) => {
+                            getSchedule(channelId).then((schedule) => {
                                 if(channelId === "one") {
                                     getLive().then((live) => {
                                         const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
@@ -37,27 +37,41 @@ export namespace ChannelService {
                             });
                         });
                     });
-                });
+                }).catch();
             } catch(err) {
                 CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
-                LogService.logError("Error while reading radioboss informations. (" + channelId + ")");
+                LogService.logError("Error while reading radioboss informations. channel service (" + channelId + ")");
             }
         });
     }
 
-    export function getCurrentSong(): Promise<SongModel> {
+    export function getStations(): Promise<ChannelModel[]> {
+        return new Promise((resolve, reject) => {
+            const stations: ChannelModel[] = [];
+            CacheService.keys().forEach((x) => {
+                if(x.startsWith("channel-")) {
+                    stations.push(CacheService.get(x));
+                }
+            });
+            resolve(stations);
+        });
+    }
+
+    export function getCurrentSong(channelId: string): Promise<SongModel> {
         return new Promise((resolve, reject) => {
             let song: SongModel;
-            if(CacheService.get("channel-one")) {
-                const channel = CacheService.get("channel-one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
-                    song = MAirListService.getCurrentSong();
-                    resolve(song);
-                    return;
+            if(channelId === "one") {
+                if(CacheService.get("channel-one")) {
+                    const channel = CacheService.get("channel-one") as ChannelModel;
+                    if(channel.live.is_live) {
+                        song = MAirListService.getCurrentSong();
+                        resolve(song);
+                        return;
+                    }
                 }
             }
-            RadioBossService.getPlayBackInfo().then((value) => {
-                RadioBossService.getCurrentArtwork().then((imageResponse) => {
+            RadioBossService.getPlayBackInfo(channelId).then((value) => {
+                RadioBossService.getCurrentArtwork(channelId).then((imageResponse) => {
                     ArtworkService.saveArtworks(value.Info.CurrentTrack.TRACK, imageResponse).then((artworks) => {
                         const start_at = new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED);
                         const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
@@ -69,18 +83,20 @@ export namespace ChannelService {
         });
     }
 
-    export function getHistory(): Promise<SongModel[]> {
+    export function getHistory(channelId: string): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
             let history: SongModel[] = [];
-            if(CacheService.get("channel-one")) {
-                const channel = CacheService.get("channel-one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
-                    history = MAirListService.getHistory();
-                    resolve(history);
-                    return;
+            if(channelId === "one") {
+                if(CacheService.get("channel-one")) {
+                    const channel = CacheService.get("channel-one") as ChannelModel;
+                    if(channel.live.is_live) {
+                        history = MAirListService.getHistory();
+                        resolve(history);
+                        return;
+                    }
                 }
             }
-            RadioBossService.getLastPlayed().then((value) => {
+            RadioBossService.getLastPlayed(channelId).then((value) => {
                 value.LastPlayed.TRACK.shift();
                 value.LastPlayed.TRACK.forEach((last) => {
                     ArtworkService.getArtworks(last.FILENAME).then((artworks) => {
@@ -101,19 +117,21 @@ export namespace ChannelService {
         });
     }
 
-    export function getSchedule(): Promise<SongModel[]> {
+    export function getSchedule(channelId: string): Promise<SongModel[]> {
         return new Promise((resolve, reject) => {
             let schedule: SongModel[] = [];
-            if(CacheService.get("channel-one")) {
-                const channel = CacheService.get("channel-one") as ChannelModel;
-                if(channel.live.is_live) { // channel.live.is_live && channel === "one"
-                    schedule = MAirListService.getSchedule();
-                    resolve(schedule);
-                    return;
+            if(channelId === "one") {
+                if(CacheService.get("channel-one")) {
+                    const channel = CacheService.get("channel-one") as ChannelModel;
+                    if(channel.live.is_live) {
+                        schedule = MAirListService.getSchedule();
+                        resolve(schedule);
+                        return;
+                    }
                 }
             }
-            RadioBossService.getPlayBackInfo().then((playBack) => {
-                RadioBossService.getPlaylist().then((value) => {
+            RadioBossService.getPlayBackInfo(channelId).then((playBack) => {
+                RadioBossService.getPlaylist(channelId).then((value) => {
                     value.Playlist.TRACK.splice(0, Number(playBack.Info.Playback.playlistpos));
                     for(const queue of value.Playlist.TRACK) {
                         if(schedule.length < 5) {

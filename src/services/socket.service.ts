@@ -1,6 +1,7 @@
 import socket from "socket.io";
 import { Server } from "ws";
 import { CacheService } from "./cache.service";
+import { ChannelService } from "./channel.service";
 import { LogService } from "./log.service";
 
 let io: socket.Server;
@@ -11,12 +12,13 @@ export namespace SocketService {
     io = new socket.Server(httpServer, { cors: { origin: "*" } });
     io.on("connection", (client: any) => {
       LogService.logInfo(`Client connected [id=${client.id}]`);
-      client.emit("one", CacheService.get("channel-one"));
-      client.emit("dance", CacheService.get("channel-dance"));
-      client.emit("trap", CacheService.get("channel-trap"));
-      client.emit("channels", CacheService.get("channel-one"));
-      client.emit("channels", CacheService.get("channel-dance"));
-      client.emit("channels", CacheService.get("channel-trap"));
+      ChannelService.getStations().then((channels) => {
+        channels.forEach((x) => {
+          const name = x.name.split(".")[1];
+          client.emit(name, CacheService.get("channel-" + name));
+          client.emit("channels", CacheService.get("channel-" + name));
+        });
+      });
       // client.emit("listeners", CacheService.get("listeners").all);
       client.on("disconnect", () => {
         LogService.logInfo(`Client gone [id=${client.id}]`);
@@ -28,9 +30,12 @@ export namespace SocketService {
       const id = makeWebSocketId();
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
       CacheService.getWebSocketCache().set(id, webSocket);
-      webSocket.send(JSON.stringify(CacheService.get("channel-one")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-dance")));
-      webSocket.send(JSON.stringify(CacheService.get("channel-trap")));
+      ChannelService.getStations().then((channels) => {
+        channels.forEach((x) => {
+          const name = x.name.split(".")[1];
+          webSocket.send(JSON.stringify(CacheService.get("channel-" + name)));
+        });
+      });
       webSocket.onclose = () => {
         CacheService.getWebSocketCache().set(id, undefined);
         LogService.logInfo(`PreMiD disconnected over websockets. [id=${id}]`);

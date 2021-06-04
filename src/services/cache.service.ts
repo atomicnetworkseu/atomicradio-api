@@ -44,6 +44,10 @@ export namespace CacheService {
     return cache.get(key);
   }
 
+  export function keys(): string[] {
+    return cache.keys();
+  }
+
   export function getIpCache() {
     return ipCache;
   }
