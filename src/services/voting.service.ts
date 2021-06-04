@@ -10,7 +10,6 @@ const cache = new CacheManager({
     discardTamperedCache: true
 });
 cache.on("update", (key, data) => {
-    console.log("update " + key);
     RedisService.set(key, JSON.stringify(data));
 });
 cache.on("outdated", (key, data) => {
