@@ -27,13 +27,21 @@ export namespace ChannelService {
                                         if(live.is_live) {
                                             CacheService.set("channel-" + channelId, channelInfo, 10000);
                                         } else {
-                                            CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                            if(channelInfo.song.end_at === null) {
+                                                CacheService.set("channel-" + channelId, channelInfo, 10000);
+                                            } else {
+                                                CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                            }
                                         }
                                         resolve(channelInfo);
                                     });
                                 } else {
                                     const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
-                                    CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                    if(channelInfo.song.end_at === null) {
+                                        CacheService.set("channel-" + channelId, channelInfo, 10000);
+                                    } else {
+                                        CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                                    }
                                     resolve(channelInfo);
                                 }
                             });
