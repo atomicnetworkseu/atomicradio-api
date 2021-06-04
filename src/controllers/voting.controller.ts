@@ -15,9 +15,9 @@ export namespace VotingController {
         }
 
         const result: VoteSongModel[] = [];
-        if(req.requestIp === "" || req.requestIp === undefined) {
+        /*if(req.requestIp === "" || req.requestIp === undefined) {
             return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
-        }
+        }*/
         for(const item of voting.items) {
             const song: VoteSongModel = { id: item.id, artist: item.artist, title: item.title, type: item.type, votes: item.votes, voted: false, preview_url: item.preview_url, artworks: item.artworks };
             if(VotingService.hasVoted(req.requestIp, item.id)) {
@@ -40,9 +40,9 @@ export namespace VotingController {
         }
         const id = Number(req.query.id);
 
-        if(req.requestIp === "" || req.requestIp === undefined) {
+        /*if(req.requestIp === "" || req.requestIp === undefined) {
             return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
-        }
+        }*/
 
         const voting = VotingService.getCache().get("voting") as VotingModel;
         if(voting.items.length === 0) {

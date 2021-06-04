@@ -6,6 +6,8 @@ import { LogService } from "./log.service";
 import { ArtworkService } from "./artwork.service";
 import { AzuracastService } from "./azuracast.service";
 import { MAirListService } from "./mairlist.service";
+import { VotingService } from "./voting.service";
+import { VotingModel } from "../models/voting.model";
 
 export namespace ChannelService {
 
@@ -30,7 +32,7 @@ export namespace ChannelService {
                                         resolve(channelInfo);
                                     });
                                 } else {
-                                    const channelInfo: ChannelModel = { name: channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                                    const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
                                     CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
                                     resolve(channelInfo);
                                 }
@@ -135,10 +137,23 @@ export namespace ChannelService {
                     value.Playlist.TRACK.splice(0, Number(playBack.Info.Playback.playlistpos));
                     for(const queue of value.Playlist.TRACK) {
                         if(schedule.length < 5) {
+                            if(channelId === "one") {
+                                if(queue.FILENAME.includes("number1") || queue.FILENAME.includes("number2") || queue.FILENAME.includes("number3") ||
+                                queue.FILENAME.includes("number4") || queue.FILENAME.includes("number5")) {
+                                    const voting = VotingService.getCache().get("voting") as VotingModel;
+                                    const item = voting.items[(Number(queue.FILENAME.split("number")[1].split(".")[0])-1)];
+                                    const items = value.Playlist.TRACK.filter((x) => x.FILENAME === item.filePath);
+                                    const start_at_voting = new Date(new Date().getFullYear() + "-" + (new Date().getMonth()+1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
+                                    const end_at_voting = new Date(start_at_voting.getTime() + RadioBossService.convertDurationToMs(items[0].DURATION));
+                                    const song_voting: SongModel = { artist: items[0].CASTTITLE.split(" - ")[0], title: items[0].CASTTITLE.split(" - ")[1], playlist: getPlaylist(items[0].FILENAME) + " • VOTING", start_at: start_at_voting, end_at: end_at_voting, duration: (RadioBossService.convertDurationToMs(items[0].DURATION)/1000), artworks: ArtworkService.getErrorArtworks() };
+                                    schedule.push(song_voting);
+                                }
+                            }
+
                             const start_at = new Date(new Date().getFullYear() + "-" + (new Date().getMonth()+1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
                             const end_at = new Date(start_at.getTime() + RadioBossService.convertDurationToMs(queue.DURATION));
                             const song: SongModel = { artist: queue.CASTTITLE.split(" - ")[0], title: queue.CASTTITLE.split(" - ")[1], playlist: getPlaylist(queue.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(queue.DURATION)/1000), artworks: ArtworkService.getErrorArtworks() };
-                            if(!queue.FILENAME.includes("brandings")) {
+                            if(!(queue.FILENAME.includes("brandings") || queue.CASTTITLE.includes("playrequestedsong"))) {
                                 schedule.push(song);
                             }
                         }

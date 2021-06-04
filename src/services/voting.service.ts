@@ -18,6 +18,25 @@ cache.on("outdated", (key, data) => {
     }
 });
 
+class SendQueue {
+
+    public queue: VoteSongModel[] = [];
+    constructor(items: VoteSongModel[]) {
+        this.queue = items;
+    }
+
+    next() {
+        if(this.queue.length === 0) return;
+        const item = this.queue[0];
+        RadioBossService.requestSong(item.filePath).then(() => {
+            this.queue.shift();
+            this.next();
+        });
+    }
+
+}
+let queue: SendQueue;
+
 export namespace VotingService {
 
     export function loadVoting() {
@@ -92,7 +111,7 @@ export namespace VotingService {
                 ending_at: new Date(endingDate.getFullYear(), endingDate.getMonth(), endingDate.getDate(), 18, 30),
                 closed: false
             };
-            cache.set("voting", voting, 10000);
+            cache.set("voting", voting, voting.closing_at.getTime()-new Date().getTime());
         }).catch((err) => {
             LogService.logError("Error while reading azuracast media list.");
         });
@@ -133,7 +152,8 @@ export namespace VotingService {
         voting.closed = true;
         const items = voting.items.slice(0, 5);
         items.reverse();
-        items.forEach((x) => RadioBossService.requestSong(x.filePath));
+        queue = new SendQueue(items);
+        queue.next();
         setTimeout(() => {
             VotingService.startVoting();
         }, (voting.ending_at.getTime()-new Date().getTime()));
