@@ -34,27 +34,14 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    switch (channelId) {
-      case "one":
-        if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-          return CacheService.get("channel-one");
-        }
-        const channelOne = CacheService.get("channel-one") as ChannelModel;
-        return res.status(200).json(channelOne);
-      case "dance":
-        if(CacheService.get("channel-dance") === undefined || CacheService.get("channel-dance").code !== undefined) {
-          return CacheService.get("channel-dance");
-        }
-        const channelDance = CacheService.get("channel-dance") as ChannelModel;
-        return res.status(200).json(channelDance);
-      case "trap":
-        if(CacheService.get("channel-trap") === undefined || CacheService.get("channel-trap").code !== undefined) {
-          return CacheService.get("channel-trap");
-        }
-        const channelTrap = CacheService.get("channel-trap") as ChannelModel;
-        return res.status(200).json(channelTrap);
-      default:
-        return res.status(404).json({ code: 404, message: "This channel does not exist." });
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
+      }
+      const channel = CacheService.get("channel-" + channelId) as ChannelModel;
+      return res.status(200).json(channel);
+    } else {
+      return res.status(404).json({ code: 404, message: "This channel does not exist." });
     }
   }
 
@@ -66,9 +53,9 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        return CacheService.get("channel-one");
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.song);
@@ -85,10 +72,9 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        console.log("test");
-        return CacheService.get("channel-one");
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.description);
@@ -105,9 +91,9 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        return CacheService.get("channel-one");
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.schedule);
@@ -124,9 +110,9 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        return CacheService.get("channel-one");
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json(channel.history);
@@ -143,9 +129,9 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one" || channelId === "dance" || channelId === "trap") {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        return CacheService.get("channel-one");
+    if(ChannelService.isStation(channelId)) {
+      if(CacheService.get("channel-" + channelId) === undefined || CacheService.get("channel-" + channelId).code !== undefined) {
+        return CacheService.get("channel-" + channelId);
       }
       const channel = CacheService.get("channel-" + channelId) as ChannelModel;
       return res.status(200).json({ listeners: channel.listeners });
@@ -155,14 +141,6 @@ export namespace ChannelController {
   }
 
   export function getChannelLive(req: Request, res: Response) {
-    if (!req.params.id) {
-      if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
-        return CacheService.get("channel-one");
-      }
-      const channel = CacheService.get("channel-one") as ChannelModel;
-      return res.status(200).json(channel.live);
-    }
-
     let channelId = String(req.params.id).toLowerCase();
     if (channelId.includes("atr.")) {
       channelId = channelId.split(".")[1];
@@ -170,14 +148,14 @@ export namespace ChannelController {
       channelId = channelId.split("-")[1];
     }
 
-    if (channelId === "one") {
+    if (channelId === "one" || !req.params.id) {
       if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
         return CacheService.get("channel-one");
       }
       const channel = CacheService.get("channel-one") as ChannelModel;
       return res.status(200).json(channel.live);
-    } else if (channelId === "dance" || channelId === "trap") {
-      return res.status(500).json({ code: 500, message: "Only our channel 'channel-one' has live metadata." });
+    } else if(ChannelService.isStation(channelId)) {
+      return res.status(500).json({ code: 500, message: "Only our channel one has live metadata." });
     } else {
       return res.status(404).json({ code: 404, message: "This channel does not exist." });
     }

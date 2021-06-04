@@ -59,6 +59,12 @@ export namespace ChannelService {
         });
     }
 
+    export function isStation(channelId: string): boolean {
+        const item = CacheService.keys().filter(x => x === "channel-" + channelId);
+        if(item[0] === undefined) return false;
+        return true;
+    }
+
     export function getCurrentSong(channelId: string): Promise<SongModel> {
         return new Promise((resolve, reject) => {
             let song: SongModel;
