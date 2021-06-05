@@ -30,7 +30,7 @@ export namespace ListenerService {
                     result.push({ station: channel.name.split(".")[1], value: channel.listeners });
                 }
                 resolve(result);
-            });
+            }).catch(() => resolve([]));
         });
     }
 
@@ -47,7 +47,7 @@ export namespace ListenerService {
                     }
                 }
                 resolve(result);
-            });
+            }).catch(() => resolve([]));
         });
     }
 
