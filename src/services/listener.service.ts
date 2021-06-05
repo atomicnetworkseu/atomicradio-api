@@ -14,9 +14,7 @@ export namespace ListenerService {
                     web.forEach((x) => {
                         result.web += x.value;
                     });
-
                     result.all = result.discord+result.teamspeak+result.web;
-                    console.log(result);
                     resolve(result);
                 });
             });
@@ -30,7 +28,6 @@ export namespace ListenerService {
                 for(const channel of channels) {
                     result.push({ station: channel.name.split(".")[1], value: channel.listeners });
                 }
-                console.log(result);
                 resolve(result);
             });
         });
@@ -48,7 +45,6 @@ export namespace ListenerService {
                         result.push({ station: String(listener.station).toLowerCase(), value: 1 });
                     }
                 }
-                console.log(result);
                 resolve(result);
             });
         });
