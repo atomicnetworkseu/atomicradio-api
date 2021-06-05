@@ -13,14 +13,12 @@ export namespace ArtworkService {
     export function saveArtworks(track: Track, response: AxiosResponse<any>): Promise<ArtworksModel> {
         return new Promise((resolve, reject) => {
             ArtworkModel.findOne({ path: track.FILENAME }).exec().then((value) => {
-                console.log(track.FILENAME);
                 if (value) {
-                    console.log(value);
                     const artworks: ArtworksModel = {
-                        1000: `https://status.atomicradio.eu/assets/artworks/${value.id}/1000.jpg`,
-                        500: `https://status.atomicradio.eu/assets/artworks/${value.id}/0500.jpg`,
-                        250: `https://status.atomicradio.eu/assets/artworks/${value.id}/0250.jpg`,
-                        100: `https://status.atomicradio.eu/assets/artworks/${value.id}/0100.jpg`
+                        1000: `https://api.atomicradio.eu/artworks/${value.id}/1000.jpg`,
+                        500: `https://api.atomicradio.eu/artworks/${value.id}/0500.jpg`,
+                        250: `https://api.atomicradio.eu/artworks/${value.id}/0250.jpg`,
+                        100: `https://api.atomicradio.eu/artworks/${value.id}/0100.jpg`
                     }
                     resolve(artworks);
                     return;
