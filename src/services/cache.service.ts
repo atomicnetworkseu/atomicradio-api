@@ -16,7 +16,7 @@ cache.on("update", (name: string, data?: any) => {
   if (name.startsWith("channel-")) {
     const channelId = name.split("-");
     SocketService.emitUpdate("channels", data);
-    SocketService.emitUpdate(channelId[1].split(".")[1], data);
+    SocketService.emitUpdate(channelId[1], data);
   }
 });
 cache.on("outdated", (name: string, data?: any) => {

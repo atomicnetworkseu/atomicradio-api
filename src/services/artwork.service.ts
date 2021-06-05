@@ -13,8 +13,16 @@ export namespace ArtworkService {
     export function saveArtworks(track: Track, response: AxiosResponse<any>): Promise<ArtworksModel> {
         return new Promise((resolve, reject) => {
             ArtworkModel.findOne({ path: track.FILENAME }).exec().then((value) => {
+                console.log(track.FILENAME);
                 if (value) {
-                    resolve(value.artworks);
+                    console.log(value);
+                    const artworks: ArtworksModel = {
+                        1000: `https://status.atomicradio.eu/assets/artworks/${value.id}/1000.jpg`,
+                        500: `https://status.atomicradio.eu/assets/artworks/${value.id}/0500.jpg`,
+                        250: `https://status.atomicradio.eu/assets/artworks/${value.id}/0250.jpg`,
+                        100: `https://status.atomicradio.eu/assets/artworks/${value.id}/0100.jpg`
+                    }
+                    resolve(artworks);
                     return;
                 }
                 const artId = flake.gen();
@@ -58,12 +66,12 @@ export namespace ArtworkService {
                                 LogService.logError("Artwork could not be resized to 100. (" + artId + ")");
                                 resolve(getErrorArtworks());
                             });
-                        const artworks: ArtworksModel = {
-                            1000: `https://cdn.atomicradio.eu/artworks/${artId}/1000.jpg`,
-                            500: `https://cdn.atomicradio.eu/artworks/${artId}/0500.jpg`,
-                            250: `https://cdn.atomicradio.eu/artworks/${artId}/0250.jpg`,
-                            100: `https://cdn.atomicradio.eu/artworks/${artId}/0100.jpg`
-                        }
+                            const artworks: ArtworksModel = {
+                              1000: `https://status.atomicradio.eu/assets/artworks/${artId}/1000.jpg`,
+                              500: `https://status.atomicradio.eu/assets/artworks/${artId}/0500.jpg`,
+                              250: `https://status.atomicradio.eu/assets/artworks/${artId}/0250.jpg`,
+                              100: `https://status.atomicradio.eu/assets/artworks/${artId}/0100.jpg`
+                            };
                         const artwork: Artwork = new ArtworkModel({ id: artId, path: track.FILENAME, artworks });
                         artwork.save().then((savedArtworks) => {
                             resolve(artworks);
@@ -86,7 +94,13 @@ export namespace ArtworkService {
                     resolve(getErrorArtworks());
                     return;
                 }
-                resolve(value.artworks)
+                const artworks: ArtworksModel = {
+                    1000: `https://status.atomicradio.eu/assets/artworks/${value.id}/1000.jpg`,
+                    500: `https://status.atomicradio.eu/assets/artworks/${value.id}/0500.jpg`,
+                    250: `https://status.atomicradio.eu/assets/artworks/${value.id}/0250.jpg`,
+                    100: `https://status.atomicradio.eu/assets/artworks/${value.id}/0100.jpg`
+                }
+                resolve(artworks)
             });
         });
     }
