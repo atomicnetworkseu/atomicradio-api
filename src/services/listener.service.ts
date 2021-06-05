@@ -6,14 +6,15 @@ export namespace ListenerService {
     export function getListeners(): Promise<{ discord: number, teamspeak: number, web: number, all: number }> {
         return new Promise((resolve, reject) => {
             const result = { discord: 0, teamspeak: 0, web: 0, all: 0 };
-            getDiscord().then((discord) => {
-                discord.forEach((x) => {
-                    result.discord += x.value;
+            getWeb().then((web) => {
+                web.forEach((x) => {
+                    result.web += x.value;
                 });
-                getWeb().then((web) => {
-                    web.forEach((x) => {
-                        result.web += x.value;
+                getDiscord().then((discord) => {
+                    discord.forEach((x) => {
+                        result.discord += x.value;
                     });
+
                     result.all = result.discord+result.teamspeak+result.web;
                     resolve(result);
                 });
