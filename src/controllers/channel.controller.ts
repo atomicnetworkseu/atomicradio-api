@@ -5,24 +5,21 @@ import { MAirListService } from "../services/mairlist.service";
 import { LogService } from "../services/log.service";
 import { ChannelModel } from "../models/channel.model";
 import { ChannelService } from "../services/channel.service";
+import { ListenerService } from "../services/listener.service";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
-    const listeners = CacheService.get("listeners");
     ChannelService.getStations().then((channels) => {
       if(CacheService.get("channel-one") === undefined || CacheService.get("channel-one").code !== undefined) {
         return CacheService.get("channel-one");
       }
 
       const result: { listeners: any, channels: ChannelModel[] } = { listeners: null, channels: [] };
-      if(listeners === undefined) {
-        result.listeners = { discord: 0, teamspeak: 0, web: 0, all: 0 };
-      } else {
-        result.listeners = listeners;
-      }
-
-      result.channels = channels;
-      return res.status(200).json(result);
+      ListenerService.getListeners().then((listeners) => {
+        result.listeners = listeners ?? { discord: 0, teamspeak: 0, web: 0, all: 0 };
+        result.channels = channels;
+        return res.status(200).json(result);
+      });
     });
   }
 
