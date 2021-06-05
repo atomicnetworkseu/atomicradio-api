@@ -19,6 +19,7 @@ import { SocketService } from "./services/socket.service";
 import { RateLimiterService } from "./services/ratelimiter.service";
 import { ChannelService } from "./services/channel.service";
 import { VotingService } from "./services/voting.service";
+import { ListenerService } from "./services/listener.service";
 
 const app = express();
 const httpServer = new http.Server(app);
@@ -28,9 +29,9 @@ connect("mongodb://localhost/atomicradio-api", { useNewUrlParser: true, useUnifi
 SocketService.init(httpServer);
 
 dotenv.config();
-ChannelService.getStationInfos("one");
-ChannelService.getStationInfos("gaming");
-ChannelService.getStationInfos("rap");
+ChannelService.getStationInfos("one").then(() => ListenerService.getListeners());
+ChannelService.getStationInfos("gaming").then(() => ListenerService.getListeners());
+ChannelService.getStationInfos("rap").then(() => ListenerService.getListeners());
 
 VotingService.loadVoting();
 

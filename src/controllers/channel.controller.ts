@@ -5,7 +5,6 @@ import { MAirListService } from "../services/mairlist.service";
 import { LogService } from "../services/log.service";
 import { ChannelModel } from "../models/channel.model";
 import { ChannelService } from "../services/channel.service";
-import { ListenerService } from "../services/listener.service";
 
 export namespace ChannelController {
   export function getChannels(req: Request, res: Response) {
@@ -15,11 +14,9 @@ export namespace ChannelController {
       }
 
       const result: { listeners: any, channels: ChannelModel[] } = { listeners: null, channels: [] };
-      ListenerService.getListeners().then((listeners) => {
-        result.listeners = listeners ?? { discord: 0, teamspeak: 0, web: 0, all: 0 };
-        result.channels = channels;
-        return res.status(200).json(result);
-      });
+      result.listeners = CacheService.get("listeners") ?? { discord: 0, teamspeak: 0, web: 0, all: 0 };
+      result.channels = channels;
+      return res.status(200).json(result);
     });
   }
 
@@ -217,7 +214,7 @@ export namespace ChannelController {
       return res.status(401).json({ code: 401, message: "Your authentication was not successful." });
     }
 
-    CacheService.getTeamSpeakCache().set("teamspeak-" + req.body.botId, req.body, 86400000);
+    CacheService.set("teamspeak-" + req.body.botId, req.body, 86400000);
     return res.status(200).json({ code: 200, message: "Hello TS3AudioBot!" });
   }
 }

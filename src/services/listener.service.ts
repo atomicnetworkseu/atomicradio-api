@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CacheService } from "./cache.service";
 import { ChannelService } from "./channel.service";
 
 export namespace ListenerService {
@@ -14,9 +15,12 @@ export namespace ListenerService {
                     discord.forEach((x) => {
                         result.discord += x.value;
                     });
-
-                    result.all = result.discord+result.teamspeak+result.web;
-                    resolve(result);
+                    getTeamSpeak().then((teamspeak) => {
+                        result.teamspeak = teamspeak;
+                        result.all = result.discord+result.teamspeak+result.web;
+                        CacheService.set("listeners", result, 60000);
+                        resolve(result);
+                    });
                 });
             });
         });
@@ -49,6 +53,21 @@ export namespace ListenerService {
                 resolve(result);
             }).catch(() => resolve([]));
         });
+    }
+
+    export function getTeamSpeak(): Promise<number> {
+      return new Promise(async (resolve, reject) => {
+        let result = 0;
+        for (const key of CacheService.keys()) {
+          if(key.startsWith("teamspeak-")) {
+            const bot = CacheService.get(key);
+            if (!CacheService.isExpired(key)) {
+                result += Number(bot.value);
+            }
+          }
+        }
+        resolve(result);
+      });
     }
 
 }

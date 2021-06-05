@@ -1,16 +1,9 @@
 import CacheManager from "fast-node-cache";
 import { ChannelService } from "./channel.service";
+import { ListenerService } from "./listener.service";
 import { SocketService } from "./socket.service";
 
 const cache = new CacheManager({
-  memoryOnly: true,
-  discardTamperedCache: true
-});
-const ipCache = new CacheManager({
-  memoryOnly: true,
-  discardTamperedCache: true
-});
-const teamspeakCache = new CacheManager({
   memoryOnly: true,
   discardTamperedCache: true
 });
@@ -31,7 +24,7 @@ cache.on("outdated", (name: string, data?: any) => {
     const channelId = name.split("-");
     ChannelService.getStationInfos(channelId[1]);
   } else if (name.startsWith("listeners")) {
-    // ListenerService.requestListener();
+    ListenerService.getListeners();
   }
 });
 
@@ -47,16 +40,13 @@ export namespace CacheService {
   export function keys(): string[] {
     return cache.keys();
   }
-
-  export function getIpCache() {
-    return ipCache;
+  
+  export function isExpired(key: string) {
+    return cache.isExpired(key);
   }
 
   export function getWebSocketCache() {
     return webSocketCache;
   }
 
-  export function getTeamSpeakCache() {
-    return teamspeakCache;
-  }
 }

@@ -19,7 +19,7 @@ export namespace SocketService {
           client.emit("channels", CacheService.get("channel-" + name));
         });
       });
-      // client.emit("listeners", CacheService.get("listeners").all);
+      client.emit("listeners", CacheService.get("listeners").all);
       client.on("disconnect", () => {
         LogService.logInfo(`Client gone [id=${client.id}]`);
       });

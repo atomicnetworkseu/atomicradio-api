@@ -12,9 +12,6 @@ export namespace WeatherController {
         const weather = await requestWeatherData(req.query.lat, req.query.lon);
         res.status(200).json(weather);
       } else {
-        if(req.requestIp === "" || req.requestIp === undefined) {
-          return res.status(403).json({ code: 403, message: "Direct IP access is not allowed. Please use api.atomicradio.eu." });
-        }
         const ipInfo = await requestIpInformations(req.requestIp);
         const country = ipInfo.country;
         const city = ipInfo.city;
@@ -80,15 +77,15 @@ export namespace WeatherController {
 
   function requestIpInformations(ip: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      if (CacheService.getIpCache().get(ip) !== undefined) {
-        if (!CacheService.getIpCache().isExpired(ip)) {
-          resolve(CacheService.getIpCache().get(ip));
+      if (CacheService.get("ipinfo-" + ip) !== undefined) {
+        if (!CacheService.isExpired("ipinfo-" + ip)) {
+          resolve(CacheService.get("ipinfo-" + ip));
         }
       }
       axios
         .get("https://ipinfo.io/" + ip + "?token=" + process.env.IPINFO_TOKEN)
         .then((response) => {
-          CacheService.getIpCache().set(ip, response.data, 86400000);
+          CacheService.set("ipinfo-" + ip, response.data, 86400000);
           resolve(response.data);
         })
         .catch((error) => {
