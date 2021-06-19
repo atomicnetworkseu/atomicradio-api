@@ -1,33 +1,30 @@
 import axios from "axios";
 import * as fs from "fs";
-import PreviewModel, { Preview } from "../models/preview.model";
 import { Track } from "../models/radioboss.model";
-import FlakeId from "flakeid";
-
-const flake = new FlakeId();
+import { ChannelService } from "./channel.service";
 
 export namespace PreviewService {
 
-    export function downloadPreview(track: Track): Promise<Preview> {
+    export function downloadPreview(track: Track): Promise<string> {
         return new Promise((resolve, reject) => {
             axios.get("https://api.deezer.com/search?q=" + encodeURIComponent(track.CASTTITLE.split(" - ")[0].toLowerCase().split("feat.")[0].replace(/&/g, ",") + " - " + track.CASTTITLE.split(" - ")[1].toLowerCase().replace(/&/g, ","))).then((value) => {
-                if(value.data.data[0] === undefined) {
-                    resolve(null);
-                    return;
-                }
-                axios.get(value.data.data[0].preview, { responseType: "stream" }).then((response) => {
-                    const id = flake.gen();
-                    const writer = fs.createWriteStream("./assets/previews/" + id + ".mp3");
-                    response.data.pipe(writer);
-                    writer.on("finish", () => {
-                        const preview: Preview = new PreviewModel({ id, path: track.FILENAME });
-                        preview.save().then((previewData) => {
-                            resolve(previewData);
-                        });
-                    });
-                    writer.on("error", () => {
+                ChannelService.getSongId(track.FILENAME).then((songId) => {
+                    if(value.data.data[0] === undefined) {
                         resolve(null);
-                    });
+                        return;
+                    }
+                    if(!fs.existsSync(`./assets/previews/${songId.id}.mp3`)) {
+                        axios.get(value.data.data[0].preview, { responseType: "stream" }).then((response) => {
+                            const writer = fs.createWriteStream("./assets/previews/" + songId.id + ".mp3");
+                            response.data.pipe(writer);
+                            writer.on("finish", () => {
+                                resolve("https://cdn.atomicradio.eu/previews/" + songId.id + ".mp3");
+                            });
+                            writer.on("error", () => {
+                                resolve(null);
+                            });
+                        });
+                    }
                 });
             });
         });
@@ -35,14 +32,14 @@ export namespace PreviewService {
 
     export function getPreview(track: Track): Promise<string> {
         return new Promise((resolve, reject) => {
-            PreviewModel.findOne({ path: track.FILENAME }).exec().then((value) => {
-                if(value) {
-                    resolve("https://cdn.atomicradio.eu/previews/" + value.id + ".mp3");
-                    return;
+            ChannelService.getSongId(track.FILENAME).then((songId) => {
+                if(fs.existsSync(`./assets/previews/${songId.id}.mp3`)) {
+                    resolve("https://cdn.atomicradio.eu/previews/" + songId.id + ".mp3");
+                } else {
+                    downloadPreview(track).then((preview) => {
+                        resolve(preview);
+                    }).catch(() => resolve(null));
                 }
-                downloadPreview(track).then((preview) => {
-                    resolve("https://cdn.atomicradio.eu/previews/" + preview.id + ".mp3");
-                }).catch(() => resolve(null));
             });
         });
     }
