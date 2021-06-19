@@ -1,85 +1,80 @@
-import ArtworkModel, { Artwork, ArtworksModel } from "../models/artwork.model";
 import { Track } from "../models/radioboss.model";
-import FlakeId from "flakeid";
 import * as fs from "fs";
 import sharp from "sharp";
 import { LogService } from "./log.service";
 import { AxiosResponse } from "axios";
-
-const flake = new FlakeId();
+import { ArtworksModel } from "../models/song.model";
+import { ChannelService } from "./channel.service";
 
 export namespace ArtworkService {
 
     export function saveArtworks(track: Track, response: AxiosResponse<any>): Promise<ArtworksModel> {
         return new Promise((resolve, reject) => {
-            ArtworkModel.findOne({ path: track.FILENAME }).exec().then((value) => {
-                if (value) {
-                    const artworks: ArtworksModel = {
-                        1000: `https://api.atomicradio.eu/artworks/${value.id}/1000.jpg`,
-                        500: `https://api.atomicradio.eu/artworks/${value.id}/0500.jpg`,
-                        250: `https://api.atomicradio.eu/artworks/${value.id}/0250.jpg`,
-                        100: `https://api.atomicradio.eu/artworks/${value.id}/0100.jpg`
+            ChannelService.getSongId(track.FILENAME).then((songId) => {
+                if (!fs.existsSync(`./assets/artworks/${songId.id}/1000.jpg`)) {
+                    try {
+                        fs.mkdirSync(`./assets/artworks/${songId.id}`);
+                    } catch(err) {
+                        LogService.logError(`Directory already exists. The artworks will be downloaded again. (${songId.id})`);
                     }
-                    resolve(artworks);
-                    return;
-                }
-                const artId = flake.gen();
-
-                if (!fs.existsSync(`./assets/artworks/${artId}`)) {
-                    fs.mkdirSync(`./assets/artworks/${artId}`);
-                    const writer = fs.createWriteStream(`./assets/artworks/${artId}/1000.jpg`);
+                    const writer = fs.createWriteStream(`./assets/artworks/${songId.id}/1000.jpg`);
                     response.data.pipe(writer);
 
                     writer.on("finish", () => {
-                        const stats = fs.statSync(`./assets/artworks/${artId}/1000.jpg`);
+                        const stats = fs.statSync(`./assets/artworks/${songId.id}/1000.jpg`);
                         if(stats.size === 0) {
-                            fs.rm(`./assets/artworks/${artId}/1000.jpg`, (err) => {
+                            fs.rm(`./assets/artworks/${songId.id}/1000.jpg`, (err) => {
                                 if(err) return;
-                                fs.rmdirSync(`./assets/artworks/${artId}`);
+                                fs.rmdirSync(`./assets/artworks/${songId.id}`);
                             });
                             resolve(getErrorArtworks());
                             return;
                         }
-                        sharp(`./assets/artworks/${artId}/1000.jpg`)
+                        sharp(`./assets/artworks/${songId.id}/1000.jpg`)
                             .resize(500, 500)
                             .jpeg({ quality: 100, chromaSubsampling: "4:4:4", progressive: true })
-                            .toFile(`./assets/artworks/${artId}/0500.jpg`)
+                            .toFile(`./assets/artworks/${songId.id}/0500.jpg`)
                             .catch((error) => {
-                                LogService.logError("Artwork could not be resized to 500. (" + artId + ")");
+                                LogService.logError("Artwork could not be resized to 500. (" + songId.id + ")");
                                 resolve(getErrorArtworks());
                             });
-                        sharp(`./assets/artworks/${artId}/1000.jpg`)
+                        sharp(`./assets/artworks/${songId.id}/1000.jpg`)
                             .resize(250, 250)
                             .jpeg({ quality: 100, chromaSubsampling: "4:4:4", progressive: true })
-                            .toFile(`./assets/artworks/${artId}/0250.jpg`)
+                            .toFile(`./assets/artworks/${songId.id}/0250.jpg`)
                             .catch((error) => {
-                                LogService.logError("Artwork could not be resized to 250. (" + artId + ")");
+                                LogService.logError("Artwork could not be resized to 250. (" + songId.id + ")");
                                 resolve(getErrorArtworks());
                             });
-                        sharp(`./assets/artworks/${artId}/1000.jpg`)
+                        sharp(`./assets/artworks/${songId.id}/1000.jpg`)
                             .resize(100, 100)
                             .jpeg({ quality: 100, chromaSubsampling: "4:4:4", progressive: true })
-                            .toFile(`./assets/artworks/${artId}/0100.jpg`)
+                            .toFile(`./assets/artworks/${songId.id}/0100.jpg`)
                             .catch((error) => {
-                                LogService.logError("Artwork could not be resized to 100. (" + artId + ")");
+                                LogService.logError("Artwork could not be resized to 100. (" + songId.id + ")");
                                 resolve(getErrorArtworks());
                             });
-                            const artworks: ArtworksModel = {
-                              1000: `https://status.atomicradio.eu/assets/artworks/${artId}/1000.jpg`,
-                              500: `https://status.atomicradio.eu/assets/artworks/${artId}/0500.jpg`,
-                              250: `https://status.atomicradio.eu/assets/artworks/${artId}/0250.jpg`,
-                              100: `https://status.atomicradio.eu/assets/artworks/${artId}/0100.jpg`
-                            };
-                        const artwork: Artwork = new ArtworkModel({ id: artId, path: track.FILENAME, artworks });
-                        artwork.save().then((savedArtworks) => {
-                            resolve(artworks);
-                        });
+                        const artworks: ArtworksModel = {
+                            1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
+                            500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
+                            250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
+                            100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                        };
+                        resolve(artworks);
                     });
 
                     writer.on("error", () => {
-                        LogService.logError("Artwork could not be saved. (" + artId + ")");
+                        LogService.logError("Artwork could not be saved. (" + songId.id + ")");
                         resolve(getErrorArtworks());
                     });
+                } else {
+                    const artworks: ArtworksModel = {
+                        1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
+                        500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
+                        250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
+                        100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                    }
+                    resolve(artworks);
                 }
             });
         });
@@ -87,18 +82,18 @@ export namespace ArtworkService {
 
     export function getArtworks(path: string): Promise<ArtworksModel> {
         return new Promise((resolve, reject) => {
-            ArtworkModel.findOne({ path }).exec().then((value) => {
-                if(!value) {
+            ChannelService.getSongId(path).then((songId) => {
+                if (!fs.existsSync(`./assets/artworks/${songId.id}/1000.jpg`)) {
                     resolve(getErrorArtworks());
-                    return;
+                } else {
+                    const artworks: ArtworksModel = {
+                        1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
+                        500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
+                        250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
+                        100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                    }
+                    resolve(artworks);
                 }
-                const artworks: ArtworksModel = {
-                    1000: `https://status.atomicradio.eu/assets/artworks/${value.id}/1000.jpg`,
-                    500: `https://status.atomicradio.eu/assets/artworks/${value.id}/0500.jpg`,
-                    250: `https://status.atomicradio.eu/assets/artworks/${value.id}/0250.jpg`,
-                    100: `https://status.atomicradio.eu/assets/artworks/${value.id}/0100.jpg`
-                }
-                resolve(artworks)
             });
         });
     }

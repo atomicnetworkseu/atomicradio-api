@@ -1,5 +1,5 @@
 import { ChannelModel, LiveModel } from "../models/channel.model";
-import { SongModel } from "../models/song.model";
+import SongIdModel, { SongId, SongModel } from "../models/song.model";
 import { CacheService } from "./cache.service";
 import { RadioBossService } from "../services/radioboss.service";
 import { LogService } from "./log.service";
@@ -8,6 +8,9 @@ import { AzuracastService } from "./azuracast.service";
 import { MAirListService } from "./mairlist.service";
 import { VotingService } from "./voting.service";
 import { VotingModel } from "../models/voting.model";
+import FlakeId from "flakeid";
+
+const flake = new FlakeId();
 
 export namespace ChannelService {
 
@@ -234,6 +237,20 @@ export namespace ChannelService {
                     live = { is_live: liveData.is_live, streamer: liveData.streamer_name, start_at: new Date(Number(liveData.broadcast_start)*1000) };
                 }
                 resolve(live);
+            });
+        });
+    }
+
+    export function getSongId(path: string): Promise<SongId> {
+        return new Promise((resolve, reject) => {
+            SongIdModel.findOne({ path }).exec().then((value) => {
+                if(!value) {
+                    const artId = flake.gen();
+                    const songId: SongId = new SongIdModel({ id: artId, path });
+                    songId.save().then((result) => resolve(result));
+                } else {
+                    resolve(value);
+                }
             });
         });
     }

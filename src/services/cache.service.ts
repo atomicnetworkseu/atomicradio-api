@@ -40,7 +40,7 @@ export namespace CacheService {
   export function keys(): string[] {
     return cache.keys();
   }
-  
+
   export function isExpired(key: string) {
     return cache.isExpired(key);
   }
