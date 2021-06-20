@@ -55,10 +55,10 @@ export namespace ArtworkService {
                                 resolve(getErrorArtworks());
                             });
                         const artworks: ArtworksModel = {
-                            1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
-                            500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
-                            250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
-                            100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                            1000: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/1000.jpg`,
+                            500: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0500.jpg`,
+                            250: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0250.jpg`,
+                            100: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0100.jpg`
                         };
                         resolve(artworks);
                     });
@@ -69,10 +69,10 @@ export namespace ArtworkService {
                     });
                 } else {
                     const artworks: ArtworksModel = {
-                        1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
-                        500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
-                        250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
-                        100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                        1000: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/1000.jpg`,
+                        500: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0500.jpg`,
+                        250: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0250.jpg`,
+                        100: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0100.jpg`
                     }
                     resolve(artworks);
                 }
@@ -87,10 +87,10 @@ export namespace ArtworkService {
                     resolve(getErrorArtworks());
                 } else {
                     const artworks: ArtworksModel = {
-                        1000: `https://status.atomicradio.eu/assets/artworks/${songId.id}/1000.jpg`,
-                        500: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0500.jpg`,
-                        250: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0250.jpg`,
-                        100: `https://status.atomicradio.eu/assets/artworks/${songId.id}/0100.jpg`
+                        1000: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/1000.jpg`,
+                        500: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0500.jpg`,
+                        250: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0250.jpg`,
+                        100: `https://dev.atomicradio.eu/api/assets/artworks/${songId.id}/0100.jpg`
                     }
                     resolve(artworks);
                 }
