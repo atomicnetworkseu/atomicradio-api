@@ -17,43 +17,43 @@ export namespace ChannelService {
     export function getStationInfos(channelId: string) {
         return new Promise((resolve, reject) => {
             try {
-                RadioBossService.getPlayBackInfo(channelId).then((playBackInfo) => {
-                    getCurrentSong(channelId).then((currentSong) => {
-                        if(playBackInfo.Info.CurrentTrack.TRACK.FILENAME.includes("brandings")) {
-                            return;
-                        }
-                        getHistory(channelId).then((history) => {
-                            getSchedule(channelId).then((schedule) => {
-                                if(channelId === "one") {
-                                    getLive().then((live) => {
-                                        const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
-                                        if(live.is_live) {
-                                            CacheService.set("channel-" + channelId, channelInfo, 10000);
-                                        } else {
-                                            if(channelInfo.song.title.length === 0) {
-                                                CacheService.set("channel-" + channelId, channelInfo, 10000);
-                                            } else {
-                                                CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
-                                            }
-                                        }
-                                        resolve(channelInfo);
-                                    });
+                Promise.all([
+                    RadioBossService.getPlayBackInfo(channelId),
+                    getCurrentSong(channelId),
+                    getHistory(channelId),
+                    getSchedule(channelId)
+                ]).then(([playBackInfo, currentSong, history, schedule]) => {
+                    if(playBackInfo.Info.CurrentTrack.TRACK.FILENAME.includes("brandings")) {
+                        return;
+                    }
+
+                    if(channelId === "one") {
+                        getLive().then((live) => {
+                            const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), live, song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                            if(live.is_live) {
+                                CacheService.set("channel-" + channelId, channelInfo, 10000);
+                            } else {
+                                if(channelInfo.song.title.length === 0) {
+                                    CacheService.set("channel-" + channelId, channelInfo, 10000);
                                 } else {
-                                    const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
-                                    if(channelInfo.song.title.length === 0) {
-                                        channelInfo.song.title = "ATOMICRADIO";
-                                        channelInfo.song.artist = "LISTEN TO THE DIFFERENCE!";
-                                        channelInfo.song.artworks = ArtworkService.getErrorArtworks();
-                                        CacheService.set("channel-" + channelId, channelInfo, 10000);
-                                    } else {
-                                        CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
-                                    }
-                                    resolve(channelInfo);
+                                    CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
                                 }
-                            });
+                            }
+                            resolve(channelInfo);
                         });
-                    });
-                }).catch();
+                    } else {
+                        const channelInfo: ChannelModel = { name: "atr." + channelId, description: getDescription(channelId), listeners: Number(playBackInfo.Info.Streaming.listeners), song: currentSong, schedule, history, stream_urls: getStreamUrls(channelId) };
+                        if(channelInfo.song.title.length === 0) {
+                            channelInfo.song.title = "ATOMICRADIO";
+                            channelInfo.song.artist = "LISTEN TO THE DIFFERENCE!";
+                            channelInfo.song.artworks = ArtworkService.getErrorArtworks();
+                            CacheService.set("channel-" + channelId, channelInfo, 10000);
+                        } else {
+                            CacheService.set("channel-" + channelId, channelInfo, channelInfo.song.end_at.getTime()-new Date().getTime());
+                        }
+                        resolve(channelInfo);
+                    }
+                });
             } catch(err) {
                 CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
                 LogService.logError("Error while reading radioboss informations. channel service (" + channelId + ")");
@@ -92,14 +92,15 @@ export namespace ChannelService {
                     }
                 }
             }
-            RadioBossService.getPlayBackInfo(channelId).then((value) => {
-                RadioBossService.getCurrentArtwork(channelId).then((imageResponse) => {
-                    ArtworkService.saveArtworks(value.Info.CurrentTrack.TRACK, imageResponse).then((artworks) => {
-                        const start_at = new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED);
-                        const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
-                        song = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks };
-                        resolve(song);
-                    });
+            Promise.all([
+                RadioBossService.getPlayBackInfo(channelId),
+                RadioBossService.getCurrentArtwork(channelId)
+            ]).then(([ value, imageResponse ]) => {
+                ArtworkService.saveArtworks(value.Info.CurrentTrack.TRACK, imageResponse).then((artworks) => {
+                    const start_at = new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED);
+                    const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
+                    song = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks };
+                    resolve(song);
                 });
             });
         });
@@ -152,36 +153,35 @@ export namespace ChannelService {
                     }
                 }
             }
-            RadioBossService.getPlayBackInfo(channelId).then((playBack) => {
-                RadioBossService.getPlaylist(channelId).then((value) => {
-                    value.Playlist.TRACK.splice(0, Number(playBack.Info.Playback.playlistpos));
-                    for(const queue of value.Playlist.TRACK) {
-                        if(schedule.length < 5) {
-                            if(channelId === "one") {
-                                if(queue.FILENAME.includes("number1") || queue.FILENAME.includes("number2") || queue.FILENAME.includes("number3") ||
+            Promise.all([
+                RadioBossService.getPlayBackInfo(channelId),
+                RadioBossService.getPlaylist(channelId)
+            ]).then(([playBack, value]) => {
+                value.Playlist.TRACK.splice(0, Number(playBack.Info.Playback.playlistpos));
+                for (const queue of value.Playlist.TRACK) {
+                    if (schedule.length < 5) {
+                        if (channelId === "one") {
+                            if (queue.FILENAME.includes("number1") || queue.FILENAME.includes("number2") || queue.FILENAME.includes("number3") ||
                                 queue.FILENAME.includes("number4") || queue.FILENAME.includes("number5")) {
-                                    const voting = VotingService.getCache().get("voting") as VotingModel;
-                                    const item = voting.items[(Number(queue.FILENAME.split("number")[1].split(".")[0])-1)];
-                                    const items = value.Playlist.TRACK.filter((x) => x.FILENAME === item.filePath);
-                                    const start_at_voting = new Date(new Date().getFullYear() + "-" + (new Date().getMonth()+1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
-                                    const end_at_voting = new Date(start_at_voting.getTime() + RadioBossService.convertDurationToMs(items[0].DURATION));
-                                    const song_voting: SongModel = { artist: items[0].CASTTITLE.split(" - ")[0], title: items[0].CASTTITLE.split(" - ")[1], playlist: getPlaylist(items[0].FILENAME) + " • VOTING", start_at: start_at_voting, end_at: end_at_voting, duration: (RadioBossService.convertDurationToMs(items[0].DURATION)/1000), artworks: ArtworkService.getErrorArtworks() };
-                                    schedule.push(song_voting);
-                                }
-                            }
-
-                            const start_at = new Date(new Date().getFullYear() + "-" + (new Date().getMonth()+1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
-                            const end_at = new Date(start_at.getTime() + RadioBossService.convertDurationToMs(queue.DURATION));
-                            const song: SongModel = { artist: queue.CASTTITLE.split(" - ")[0], title: queue.CASTTITLE.split(" - ")[1], playlist: getPlaylist(queue.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(queue.DURATION)/1000), artworks: ArtworkService.getErrorArtworks() };
-                            if(!(queue.FILENAME.includes("brandings") || queue.CASTTITLE.includes("playrequestedsong"))) {
-                                schedule.push(song);
+                                const voting = VotingService.getCache().get("voting") as VotingModel;
+                                const item = voting.items[(Number(queue.FILENAME.split("number")[1].split(".")[0]) - 1)];
+                                const items = value.Playlist.TRACK.filter((x) => x.FILENAME === item.filePath);
+                                const start_at_voting = new Date(new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
+                                const end_at_voting = new Date(start_at_voting.getTime() + RadioBossService.convertDurationToMs(items[0].DURATION));
+                                const song_voting: SongModel = { artist: items[0].CASTTITLE.split(" - ")[0], title: items[0].CASTTITLE.split(" - ")[1], playlist: getPlaylist(items[0].FILENAME) + " • VOTING", start_at: start_at_voting, end_at: end_at_voting, duration: (RadioBossService.convertDurationToMs(items[0].DURATION) / 1000), artworks: ArtworkService.getErrorArtworks() };
+                                schedule.push(song_voting);
                             }
                         }
+
+                        const start_at = new Date(new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate() + " " + queue.STARTTIME);
+                        const end_at = new Date(start_at.getTime() + RadioBossService.convertDurationToMs(queue.DURATION));
+                        const song: SongModel = { artist: queue.CASTTITLE.split(" - ")[0], title: queue.CASTTITLE.split(" - ")[1], playlist: getPlaylist(queue.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(queue.DURATION) / 1000), artworks: ArtworkService.getErrorArtworks() };
+                        if (!(queue.FILENAME.includes("brandings") || queue.CASTTITLE.includes("playrequestedsong"))) {
+                            schedule.push(song);
+                        }
                     }
-                    resolve(schedule);
-                }).catch((err) => {
-                    resolve(schedule);
-                });
+                }
+                resolve(schedule);
             });
         });
     }
