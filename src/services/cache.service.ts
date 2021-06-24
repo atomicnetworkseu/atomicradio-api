@@ -7,10 +7,6 @@ const cache = new CacheManager({
   memoryOnly: true,
   discardTamperedCache: true
 });
-const webSocketCache = new CacheManager({
-  memoryOnly: true,
-  discardTamperedCache: true
-});
 
 cache.on("update", (name: string, data?: any) => {
   if (name.startsWith("channel-")) {
@@ -43,10 +39,6 @@ export namespace CacheService {
 
   export function isExpired(key: string) {
     return cache.isExpired(key);
-  }
-
-  export function getWebSocketCache() {
-    return webSocketCache;
   }
 
 }

@@ -6,6 +6,7 @@ import { LogService } from "./log.service";
 
 let io: socket.Server;
 let ws: Server;
+const webSocketClients: Map<string, WebSocket> = new Map();
 
 export namespace SocketService {
   export function init(httpServer: any) {
@@ -29,7 +30,7 @@ export namespace SocketService {
     ws.on("connection", (webSocket: WebSocket) => {
       const id = makeWebSocketId();
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
-      CacheService.getWebSocketCache().set(id, webSocket);
+      webSocketClients.set(id, webSocket);
       ChannelService.getStations().then((channels) => {
         channels.forEach((x) => {
           const name = x.name.split(".")[1];
@@ -37,11 +38,11 @@ export namespace SocketService {
         });
       });
       webSocket.onclose = () => {
-        CacheService.getWebSocketCache().set(id, undefined);
+        webSocketClients.delete(id);
         LogService.logInfo(`PreMiD disconnected over websockets. [id=${id}]`);
       }
       webSocket.onerror = () => {
-        CacheService.getWebSocketCache().set(id, undefined);
+        webSocketClients.delete(id);
         LogService.logInfo(`PreMiD errored over websockets. [id=${id}]`);
       }
     });
@@ -49,8 +50,8 @@ export namespace SocketService {
 
   export function emitUpdate(key: string, data: any) {
     if(key !== "listeners") {
-      for(const webSocketClientKey of CacheService.getWebSocketCache().keys()) {
-        const webSocketClient = CacheService.getWebSocketCache().get(webSocketClientKey);
+      for(const webSocketClientKey of webSocketClients.keys()) {
+        const webSocketClient = webSocketClients.get(webSocketClientKey);
         if(webSocketClient !== undefined) {
           webSocketClient.send(JSON.stringify(data));
         }
