@@ -213,7 +213,7 @@ export namespace ChannelService {
 
     export function getStreamUrls(channelId: string) {
         return {
-            ultraquality: "https://listen.atomicradio.eu/" + channelId + "/ultraquality",
+            ultraquality: "https://listen.atomicradio.eu/" + channelId + "/loseless",
             highquality: "https://listen.atomicradio.eu/" + channelId + "/highquality",
             middlequality: "https://listen.atomicradio.eu/" + channelId + "/middlequality",
             lowquality: "https://listen.atomicradio.eu/" + channelId + "/lowquality"
