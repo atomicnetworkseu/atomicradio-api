@@ -63,9 +63,19 @@ export namespace ArtworkService {
                         resolve(artworks);
                     });
 
+                    response.data.on("close", () => {
+                        writer.destroy();
+                    });
+                    response.data.on("error", () => {
+                        writer.destroy();
+                    });
                     writer.on("error", () => {
+                        response.data.destroy();
                         LogService.logError("Artwork could not be saved. (" + songId.id + ")");
                         resolve(getErrorArtworks());
+                    });
+                    writer.on('end', () => {
+                        response.data.destroy();
                     });
                 } else {
                     const artworks: ArtworksModel = {
