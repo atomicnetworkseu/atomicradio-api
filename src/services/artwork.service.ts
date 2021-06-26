@@ -21,6 +21,7 @@ export namespace ArtworkService {
                     response.data.pipe(writer);
 
                     writer.on("finish", () => {
+                        if (!fs.existsSync(`./assets/artworks/${songId.id}/1000.jpg`)) return;
                         const stats = fs.statSync(`./assets/artworks/${songId.id}/1000.jpg`);
                         if(stats.size === 0) {
                             fs.rm(`./assets/artworks/${songId.id}/1000.jpg`, (err) => {

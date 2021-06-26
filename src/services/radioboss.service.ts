@@ -17,7 +17,6 @@ export namespace RadioBossService {
                 });
             }).catch((err) => {
                 LogService.logError("Error while reading radioboss playback informations. (" + station + ")");
-                console.log(err);
                 reject("Error while reading radioboss playback informations.");
             });
         });

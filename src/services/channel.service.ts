@@ -53,9 +53,10 @@ export namespace ChannelService {
                         }
                         resolve(channelInfo);
                     }
+                }).catch((err) => {
+                    LogService.logError("Error while reading radioboss informations. channel service (" + channelId + ")");
                 });
             } catch(err) {
-                CacheService.set("channel-" + channelId, { code: 500, message: "A problem with our API has occurred. Try again later." }, 10000);
                 LogService.logError("Error while reading radioboss informations. channel service (" + channelId + ")");
             }
         });
@@ -101,7 +102,14 @@ export namespace ChannelService {
                     const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
                     song = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks };
                     resolve(song);
+                }).catch((err) => {
+                    const start_at = new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED);
+                    const end_at = new Date(new Date(value.Info.CurrentTrack.TRACK.LASTPLAYED).getTime()+RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION));
+                    song = { artist: value.Info.CurrentTrack.TRACK.ARTIST, title: value.Info.CurrentTrack.TRACK.TITLE, playlist: getPlaylist(value.Info.CurrentTrack.TRACK.FILENAME), start_at, end_at, duration: (RadioBossService.convertDurationToMs(value.Info.CurrentTrack.TRACK.DURATION)/1000), artworks: null };
+                    resolve(song);
                 });
+            }).catch((err) => {
+                LogService.logError("Error while reading current song informations. channel service (" + channelId + ")");
             });
         });
     }
@@ -181,6 +189,8 @@ export namespace ChannelService {
                         }
                     }
                 }
+                resolve(schedule);
+            }).catch((err) => {
                 resolve(schedule);
             });
         });
