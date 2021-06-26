@@ -11,7 +11,7 @@ const webSocketClients: Map<string, WebSocket> = new Map();
 export namespace SocketService {
   export function init(httpServer: any) {
     io = new socket.Server(httpServer, { cors: { origin: "*" } });
-    io.on("connection", (client: any) => {
+    io.once("connection", (client: any) => {
       LogService.logInfo(`Client connected [id=${client.id}]`);
       ChannelService.getStations().then((channels) => {
         channels.forEach((x) => {
@@ -21,13 +21,13 @@ export namespace SocketService {
         });
       });
       client.emit("listeners", CacheService.get("listeners").all);
-      client.on("disconnect", () => {
+      client.once("disconnect", () => {
         LogService.logInfo(`Client gone [id=${client.id}]`);
       });
     });
 
     ws = new Server({port: 3011});
-    ws.on("connection", (webSocket: WebSocket) => {
+    ws.once("connection", (webSocket: WebSocket) => {
       const id = makeWebSocketId();
       LogService.logInfo(`PreMiD connected over websockets. [id=${id}]`);
       webSocketClients.set(id, webSocket);
