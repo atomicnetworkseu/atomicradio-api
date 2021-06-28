@@ -51,6 +51,10 @@ export namespace ArtworkService {
                             .resize(100, 100)
                             .jpeg({ quality: 100, chromaSubsampling: "4:4:4", progressive: true })
                             .toFile(`./assets/artworks/${songId.id}/0100.jpg`)
+                            .then(() => {
+                                writer.destroy();
+                                response.data.destroy();
+                            })
                             .catch((error) => {
                                 LogService.logError("Artwork could not be resized to 100. (" + songId.id + ")");
                                 resolve(getErrorArtworks());
@@ -64,9 +68,6 @@ export namespace ArtworkService {
                         resolve(artworks);
                     });
 
-                    response.data.on("close", () => {
-                        writer.destroy();
-                    });
                     response.data.on("error", () => {
                         writer.destroy();
                     });
@@ -74,9 +75,6 @@ export namespace ArtworkService {
                         response.data.destroy();
                         LogService.logError("Artwork could not be saved. (" + songId.id + ")");
                         resolve(getErrorArtworks());
-                    });
-                    writer.on('end', () => {
-                        response.data.destroy();
                     });
                 } else {
                     const artworks: ArtworksModel = {
