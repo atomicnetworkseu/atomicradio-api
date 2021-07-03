@@ -3,4 +3,5 @@ package-lock.json
 .env
 **/*.js
 **/*.jpg
+**/*.mp3
 caches/*
